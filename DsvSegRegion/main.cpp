@@ -226,6 +226,17 @@ BOOL ReadOneDsvFrame ()
         }
 //		createRotMatrix_ZYX(onefrm->dsv[i].rot, onefrm->dsv[i].ang.x, onefrm->dsv[i].ang.y , onefrm->dsv[i].ang.z ) ; 
         createRotMatrix_ZYX(onefrm->dsv[i].rot, onefrm->dsv[i].ang.x, onefrm->dsv[i].ang.y , 0 ) ;
+
+        // 滤掉车身上的点 for guilin
+        for (int j=0; j<LINES_PER_BLK; j++) {
+            for (int k=0; k<PNTS_PER_LINE; k++) {
+                point3fi *p = &onefrm->dsv[i].points[j*PNTS_PER_LINE+k];
+                double dis2Vehicle = sqrt(sqr(p->x)+sqr(p->y)+sqr(p->z));
+                if (dis2Vehicle < 4.0) {    // m
+                    p->i = 0;
+                }
+            }
+        }
     }
 	if (i<BKNUM_PER_FRM)
         return false;
@@ -288,20 +299,19 @@ void DrawTraj(IplImage *img)
         rot2[0][1] = -sin (-onefrm->dsv[0].ang.z);
         rot2[1][0] = sin (-onefrm->dsv[0].ang.z);
         rot2[1][1] = cos (-onefrm->dsv[0].ang.z);
-        printf("yaw: %.2lf\n", onefrm->dsv[0].ang.z);
 
         //shv: SHV_src-SHV_tar
         point2d shv;
         shv.x = (iter->x - centerPoint.x) / PIXSIZ;
         shv.y = (iter->y - centerPoint.y) / PIXSIZ;
-        printf("centerPoint : (%lf,%lf)\n", centerPoint.x, centerPoint.y);
-        printf("centerPixel : (%d,%d)\n", centerPixel.x, centerPixel.y);
-        printf("shv: (%lf,%lf)\n", shv.x, shv.y);
+//        printf("centerPoint : (%lf,%lf)\n", centerPoint.x, centerPoint.y);
+//        printf("centerPixel : (%d,%d)\n", centerPixel.x, centerPixel.y);
+//        printf("shv: (%lf,%lf)\n", shv.x, shv.y);
 
         rotatePoint2d (shv, rot2);          //R_tar^{-1}*(SHV_src-SHV_tar)
         shiftPoint2d (tmpPoint, shv);		//p'=R_tar^{-1}*R_src*p+R_tar^{-1}*(SHV_src-SHV_tar)
         cvCircle(img, cvPoint((int)tmpPoint.x, (int)tmpPoint.y), 3, cv::Scalar(255,255,255), -1, 8);
-        printf("Draw point: (%d,%d)\n\n", (int)tmpPoint.x, (int)tmpPoint.y);
+//        printf("Draw point: (%d,%d)\n\n", (int)tmpPoint.x, (int)tmpPoint.y);
     }
 }
 
@@ -560,15 +570,22 @@ void Cvt2Gt(IplImage* img, cv::Mat &gtMap)
 //主处理程序（离线）
 void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdxData, P_CJDEMMAP_MSG &demMap, P_CJATTRIBUTEMAP_MSG &attributeMap*/)
 {
-    if (!LoadCalibFile ("/media/gaobiao/GaoBiaoBigDisk/GuiLin201712/hongling/Round1/intermediate_result/vel_hongling.calib")) {
+    if (!LoadCalibFile ("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/vel_hongling.calib")) {
         printf ("Invalid calibration file\n");
         getchar ();
         exit (1);
     }
-    if ((dfp = fopen("/media/gaobiao/GaoBiaoBigDisk/GuiLin201712/hongling/Round1/intermediate_result/hongling_round1_0.dsv", "r")) == NULL) {
+    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_1.dsv", "r")) == NULL) {
         printf("File open failure\n");
         getchar ();
         exit (1);
+    }
+    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/1.avi");
+    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/1.avi.ts", "r");
+    if (!cap.isOpened()) {
+        printf("Error opening video stream or file.\n");
+        getchar();
+        exit(1);
     }
 
     LONGLONG fileSize = myGetFileSize(dfp);
@@ -583,6 +600,21 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 	cvInitFont(&font,CV_FONT_HERSHEY_DUPLEX, 1,1, 0, 2);
     int waitkeydelay=0;
 	dFrmNo = 0;
+    // Name window
+    cv::namedWindow("region");
+    cv::namedWindow("range image");
+    cv::namedWindow("g_zdem");
+    cv::namedWindow("g_sublab");
+    cv::namedWindow("g_pdem");
+    cv::namedWindow("l_dem");
+    cv::namedWindow("video");
+    cv::moveWindow("region", 0, LENSIZ/PIXSIZ + 200);
+    cv::moveWindow("range image", 0, LENSIZ/PIXSIZ + 400);
+    cv::moveWindow("g_zdem", 0, 0);
+    cv::moveWindow("g_pdem", WIDSIZ*3.3/PIXSIZ, 0);
+    cv::moveWindow("g_sublab", WIDSIZ*1.3/PIXSIZ, 0);
+    cv::moveWindow("l_dem", WIDSIZ*2.3/PIXSIZ, 0);
+    cv::moveWindow("video", 1000, 500);
 
     printf("size of ONEDSVDATA: %d\n", sizeof(ONEDSVDATA));
     printf("size of MATRIX: %d\n", sizeof(MATRIX));
@@ -594,10 +626,14 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         //每一帧的处理
         ProcessOneFrame ();
 
+        //绘制历史轨迹
+        DrawTraj(dm.lmap);
+        DrawTraj(gm.smap);
+
         //可视化
         char str[10];
-        sprintf (str, "Fno%d", dFrmNo);
-        cvPutText(dm.lmap, str, cvPoint(50,50), &font, CV_RGB(0,0,255));
+        sprintf (str, "%d", onefrm->dsv[0].millisec);
+        cvPutText(dm.lmap, str, cvPoint(30,30), &font, CV_RGB(255,255,255));
 
         cvResize (rm.rMap, col);  // 距离图像 可视化
         cvShowImage("range image",col);
@@ -608,10 +644,24 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         cv::Mat pmapRGB;          // 通行概率图 伪彩可视化
         cv::applyColorMap(cvarrToMat(gm.pmap), pmapRGB, cv::COLORMAP_BONE);
 
+        // 可视化视频
+        cv::Mat vFrame;
+        int vTs;
+        cap >> vFrame;
+        fscanf(tsFp, "%d\n", &vTs);
+        // 找到和激光匹配的视频帧
+        while (vTs < onefrm->dsv[0].millisec) {
+            cap >> vFrame;
+            fscanf(tsFp, "%d\n", &vTs);
+        }
+        cv::resize(vFrame, vFrame, cv::Size(vFrame.cols / 3, vFrame.rows / 3));
+        if (!vFrame.empty()) cv::imshow("video", vFrame);
+
         if (dm.lmap) cvShowImage("l_dem",dm.lmap);    // 单帧 可行驶区域
         if (gm.zmap) cv::imshow("g_zdem", zmapRGB);      // 高程图
         if (gm.pmap) cv::imshow("g_pdem", pmapRGB);    // 多帧 可行驶概率图
         if (gm.smap) cvShowImage("g_sublab",gm.smap);    // 属性图
+
 
         // 将图片保存为png格式，用作训练/测试数据
         cv::Mat gtMap(gm.smap->height, gm.smap->width, CV_8UC1);
@@ -655,6 +705,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         dFrmNo++;
     }
 
+    cap.release();
 	ReleaseRmap (&rm);
 	ReleaseDmap (&dm);
 	ReleaseDmap (&gm);
