@@ -120,6 +120,12 @@ typedef struct {
 	ONEDSVDATA		dsv[BKNUM_PER_FRM];
 } ONEDSVFRAME;
 
+typedef struct {
+    long long millisec;
+    double x, y, z, roll, pitch, yaw;
+    int gpsStatus;
+} NAVDATA;
+
 typedef	struct {
 	unsigned short	lab;
 	point2i		dmin;

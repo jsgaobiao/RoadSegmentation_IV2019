@@ -20,12 +20,12 @@ void  DrawDem (DMAP &m)
             double pr = m.lpr[y*m.wid+x];
             // 如果是路面区域，取路面高度
             if (m.demgnum[y*m.wid+x]) {
-                // 映射前的高度范围(-3.33m, 5.2m)  for KYXZ2018
-                m.zmap->imageData[y*step+x] = BOUND(nint(m.demg[y*m.wid+x] + VEHICLEHEIGHT) * 30 + 100,  1, 255);
+                // 映射前的高度范围(-2.0m, 3.1m)
+                m.zmap->imageData[y*step+x] = BOUND((m.demg[y*m.wid+x]) * 50 + 100,  1, 255);
             }
-            // 如果是非路面区域,取最大高度（test）,映射前的高度范围(-3.33m, 5.2m)
+            // 如果是非路面区域,取最大高度（test）,映射前的高度范围(-2.0m, 3.1m)
             else if (m.demhnum[y*m.wid+x]) {
-                m.zmap->imageData[y*step+x] = BOUND(nint(m.demg[y*m.wid+x] + VEHICLEHEIGHT) * 30 + 100,  1, 255);
+                m.zmap->imageData[y*step+x] = BOUND((m.demhmax[y*m.wid+x]) * 50 + 100,  1, 255);
             }
         }
     }
