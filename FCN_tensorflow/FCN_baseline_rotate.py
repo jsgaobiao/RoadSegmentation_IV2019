@@ -12,13 +12,13 @@ import pdb
 from six.moves import xrange
 
 FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_string("result_log", "../../results/1024_baseline_rotate/result.log", "path to mPA log")
+tf.flags.DEFINE_string("result_log", "../../results/1104_baseline_rotate/result.log", "path to mPA log")
 tf.flags.DEFINE_integer("batch_size", "16", "batch size for training")
-tf.flags.DEFINE_string("logs_dir", "../../results/1024_baseline_rotate/checkpoints/", "path to logs directory")
-tf.flags.DEFINE_string("vis_dir",  "../../results/1024_baseline_rotate/vis/", "path to save results of visualization")
-tf.flags.DEFINE_string("vis_train_dir",  "../../results/1024_baseline_rotate/vis_train/", "path to save results of visualization")
-tf.flags.DEFINE_string("data_dir", "../../data/", "path to dataset")
-tf.flags.DEFINE_float("learning_rate", "2e-5", "Learning rate for Adam Optimizer")
+tf.flags.DEFINE_string("logs_dir", "../../results/1104_baseline_rotate/checkpoints/", "path to logs directory")
+tf.flags.DEFINE_string("vis_dir",  "../../results/1104_baseline_rotate/vis/", "path to save results of visualization")
+tf.flags.DEFINE_string("vis_train_dir",  "../../results/1104_baseline_rotate/vis_train/", "path to save results of visualization")
+tf.flags.DEFINE_string("data_dir", "../../data/data/", "path to dataset")
+tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer")
 tf.flags.DEFINE_string("model_dir", "../../data/Model_zoo/", "Path to vgg model mat")
 tf.flags.DEFINE_bool('debug', "False", "Debug mode: True/ False")
 tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
@@ -31,7 +31,7 @@ IMAGE_SIZE = 224
 IMAGE_HEIGHT = 300
 IMAGE_WIDTH = 300
 LR_DECREASE_RATE = 0.1;
-LR_DECREASE_ITER = int(5e4)
+LR_DECREASE_ITER = int(2e4)
 
 
 def vgg_net(weights, image):

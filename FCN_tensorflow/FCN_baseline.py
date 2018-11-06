@@ -12,12 +12,12 @@ import pdb
 from six.moves import xrange
 
 FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_string("result_log", "../../results/1023_baseline/result.log", "path to mPA log")
-tf.flags.DEFINE_integer("batch_size", "1", "batch size for training")
-tf.flags.DEFINE_string("logs_dir", "../../results/1023_baseline/checkpoints/", "path to logs directory")
-tf.flags.DEFINE_string("vis_dir",  "../../results/1023_baseline/vis/", "path to save results of visualization")
-tf.flags.DEFINE_string("vis_train_dir",  "../../results/1023_baseline/vis_train/", "path to save results of visualization")
-tf.flags.DEFINE_string("data_dir", "../../data/", "path to dataset")
+tf.flags.DEFINE_string("result_log", "../../results/1103_baseline/result.log", "path to mPA log")
+tf.flags.DEFINE_integer("batch_size", "16", "batch size for training")
+tf.flags.DEFINE_string("logs_dir", "../../results/1103_baseline/checkpoints/", "path to logs directory")
+tf.flags.DEFINE_string("vis_dir",  "../../results/1103_baseline/vis/", "path to save results of visualization")
+tf.flags.DEFINE_string("vis_train_dir",  "../../results/1103_baseline/vis_train/", "path to save results of visualization")
+tf.flags.DEFINE_string("data_dir", "../../data/data/", "path to dataset")
 tf.flags.DEFINE_float("learning_rate", "1e-5", "Learning rate for Adam Optimizer")
 tf.flags.DEFINE_string("model_dir", "../../data/Model_zoo/", "Path to vgg model mat")
 tf.flags.DEFINE_bool('debug', "False", "Debug mode: True/ False")
@@ -181,6 +181,7 @@ def OutputResult(itr, table):
         else:
             IoU = 0
         fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(tp)/float(tp+fp)))
+    fout.flush()
 
 def main(argv=None):
     keep_probability = tf.placeholder(tf.float32, name="keep_probabilty")
@@ -242,7 +243,7 @@ def main(argv=None):
         global fout
         fout = open(FLAGS.result_log, 'w')
         for itr in xrange(MAX_ITERATION):
-            train_images, train_annotations = train_dataset_reader.next_batch(FLAGS.batch_size)
+            train_images, train_annotations = train_dataset_reader.next_batch(FLAGS.batch_size, random_rotate = 0)
             feed_dict = {image: train_images, annotation: train_annotations, keep_probability: 0.85}
             sess.run(train_op, feed_dict=feed_dict)
 
@@ -252,7 +253,7 @@ def main(argv=None):
                 summary_writer.add_summary(summary_str, itr)
 
             if (itr % 5000 == 0):
-                valid_images, valid_annotations = validation_dataset_reader.next_batch(FLAGS.batch_size)
+                valid_images, valid_annotations = validation_dataset_reader.next_batch(FLAGS.batch_size, random_rotate = 0)
                 valid_loss = sess.run(loss, feed_dict={image: valid_images, annotation: valid_annotations,
                                                        keep_probability: 1.0})
                 print("%s ---> Validation_loss: %g" % (datetime.datetime.now(), valid_loss))
@@ -260,7 +261,7 @@ def main(argv=None):
                 # run test
                 cntTable = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
                 for i in range(len(test_records)):
-                    test_images, test_annotations = test_dataset_reader.next_batch(1)
+                    test_images, test_annotations = test_dataset_reader.next_batch(1, random_rotate = 0)
                     pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations, keep_probability: 1.0})
                     test_annotations = np.squeeze(test_annotations, axis=3)
                     pred = np.squeeze(pred, axis=3)
@@ -274,8 +275,8 @@ def main(argv=None):
         # videoWriter = cv2.VideoWriter('test.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 5, (IMAGE_WIDTH, IMAGE_HEIGHT), False)
         for itr in range(len(test_records)):
         # for itr in range(len(train_records)):
-            test_images, test_annotations = test_dataset_reader.next_batch(1)
-            # test_images, test_annotations = train_dataset_reader.next_batch(1)
+            test_images, test_annotations = test_dataset_reader.next_batch(1, random_rotate = 0)
+            # test_images, test_annotations = train_dataset_reader.next_batch(1, random_rotate = 0)
             pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations,
                                                         keep_probability: 1.0})
             test_annotations = np.squeeze(test_annotations, axis=3)
@@ -292,7 +293,7 @@ def main(argv=None):
 
     elif FLAGS.mode == "test_trainset":
         for itr in range(len(train_records)):
-            test_images, test_annotations = train_dataset_reader.next_batch(1)
+            test_images, test_annotations = train_dataset_reader.next_batch(1, random_rotate = 0)
             pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations,
                                                         keep_probability: 1.0})
             test_annotations = np.squeeze(test_annotations, axis=3)

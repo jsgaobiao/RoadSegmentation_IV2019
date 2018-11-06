@@ -407,21 +407,21 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         exit (1);
     }
     // dsv
-    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_2.dsv", "r")) == NULL) {
+    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_0.dsv", "r")) == NULL) {
         printf("File open failure\n");
         getchar ();
         exit (1);
     }
     // video
-    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi");
-    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi.ts", "r");
+    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi");
+    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi.ts", "r");
     if (!cap.isOpened()) {
         printf("Error opening video stream or file.\n");
         getchar();
         exit(1);
     }
     // nav
-    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.nav", "r")) == NULL) {
+    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.nav", "r")) == NULL) {
         printf("Nav open failure\n");
         getchar ();
         exit (1);
@@ -517,13 +517,18 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
         // 将图片保存为png格式，用作训练/测试数据
         cv::Mat gtMap(gm.smap->height, gm.smap->width, CV_8UC1);
-        if (dFrmNo > 20) {
+        if (dFrmNo > 20 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
             stringstream s_fno;
             s_fno << setw(8) << setfill('0') << onefrm->dsv[0].millisec;
-            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_2/";
-            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", cv::cvarrToMat(gm.zmap));
+            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_0/";
+
+            zMap = cv::cvarrToMat(gm.zmap);
+            cv::flip(zMap, zMap, 0);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
+            cv::flip(gtMap, gtMap, 0);
             cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);

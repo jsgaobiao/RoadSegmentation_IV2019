@@ -5,8 +5,8 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1024_baseline_rotate/vis/'
-NAME = '1024_baseline_rotate'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1103_baseline/vis/'
+NAME = '1103_baseline'
 IMAGE_WIDTH = 300
 IMAGE_HEIGHT = 300
 NUM_OF_CLASSESS = 3
@@ -78,7 +78,7 @@ imgList.sort()
 gtList.sort()
 preList.sort()
 
-videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 8, (IMAGE_WIDTH * 3, IMAGE_HEIGHT), True)
+videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 10, (IMAGE_WIDTH * 4, IMAGE_HEIGHT), True)
 #videoWriter = cv2.VideoWriter('test.avi', cv2.VideoWriter_fourcc(*'XVID'), 5, (IMAGE_WIDTH, IMAGE_HEIGHT * 2), True)
 
 for i in range(len(imgList)):
@@ -87,8 +87,10 @@ for i in range(len(imgList)):
     pre = cv2.imread(PATH + preList[i], cv2.IMREAD_COLOR)
     table = LabelColor(img, gt, pre)
     cntTable += table
-    mergeImg = np.concatenate((img, pre, gt), axis=1)
+    colorizedImg = cv2.applyColorMap(img, cv2.COLORMAP_HOT)
+    mergeImg = np.concatenate((img, colorizedImg, pre, gt), axis=1)
     # mergeImg = cv2.resize(mergeImg, (IMAGE_WIDTH, IMAGE_HEIGHT * 2), interpolation=cv2.INTER_NEAREST)
+    # mergeImg = cv2.flip(mergeImg, 0)
     videoWriter.write(mergeImg)
     print('Frame: %d / %d' % (i, len(imgList)))
 

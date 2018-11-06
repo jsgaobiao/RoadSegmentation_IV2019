@@ -8,7 +8,7 @@ import os
 import shutil
 
 PATH                = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data/'       # end with '/'
-IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/image/'     # end with '/'
+IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin/'     # end with '/'
 TRAIN_FILE          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/train.txt'
 TEST_FILE           = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test.txt'
 TEST_FILE_WITH_GT   = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test_gt.txt'
