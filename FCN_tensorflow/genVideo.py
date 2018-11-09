@@ -5,11 +5,12 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1103_baseline/vis/'
-NAME = '1103_baseline'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1108_weaklabel_rotate/vis/'
+NAME = '1108_weaklabel_rotate'
+IS_WEAK_LABEL = True
 IMAGE_WIDTH = 300
 IMAGE_HEIGHT = 300
-NUM_OF_CLASSESS = 3
+NUM_OF_CLASSESS = 4
 
 def ColorMap(data):
     if data[0] == 0:        # unknown
@@ -28,7 +29,10 @@ def LabelColor(img, gt, pre):
             # caculate accuracy
             table[gt[i,j,0]][pre[i,j,0]] += 1
             # Label color of gt
-            gt[i,j] = ColorMap(gt[i,j])
+            if (IS_WEAK_LABEL and gt[i,j,0] == 0):
+                gt[i,j] = img[i,j]
+            else:
+                gt[i,j] = ColorMap(gt[i,j])
             # Label color of prediction
             pre[i,j] = ColorMap(pre[i,j])
     return table
@@ -52,7 +56,11 @@ def OutputResult(table):
             IoU = float(tp) / float(tp + fp + fn)
         else:
             IoU = 0
-        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(tp)/float(tp+fp)))
+        if (tp + fp != 0):
+            mPA = float(tp)/float(tp+fp)
+        else:
+            mPA = 0
+        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(mPA)))
     fout.close()
 
 
@@ -84,6 +92,7 @@ videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'),
 for i in range(len(imgList)):
     img = cv2.imread(PATH + imgList[i], cv2.IMREAD_COLOR)
     gt = cv2.imread(PATH + gtList[i], cv2.IMREAD_COLOR)
+    gt = cv2.flip(gt, 0)
     pre = cv2.imread(PATH + preList[i], cv2.IMREAD_COLOR)
     table = LabelColor(img, gt, pre)
     cntTable += table

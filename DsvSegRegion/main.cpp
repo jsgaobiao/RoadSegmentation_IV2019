@@ -10,12 +10,14 @@ int		dsbytesiz = sizeof (point3d)*2 + sizeof (ONEVDNDATA);
 int		dFrmNum=0;
 int		dFrmNo=0;
 int     idxRcsPointCloud=0;
+bool    camCalibFlag=true;
 
 RMAP	rm;
 DMAP	dm;
 DMAP	gm, ggm;
 
 ONEDSVFRAME	*onefrm;
+ONEDSVFRAME	*originFrm;
 std::vector<NAVDATA> nav;
 IplImage * col;
 IplImage *demVis;
@@ -241,6 +243,9 @@ BOOL ReadOneDsvFrame ()
             }
         }
     }
+    if (camCalibFlag) {
+        memcpy(originFrm, onefrm, sizeof(*onefrm));
+    }
 	if (i<BKNUM_PER_FRM)
         return false;
 	else
@@ -331,7 +336,7 @@ void Cvt2Gt(IplImage* img, cv::Mat &gtMap)
         }
 }
 
-void DrawNav(cv::Mat &img)
+void DrawNav(cv::Mat &img, cv::Mat &weakGT)
 {
     MAT2D	rot2;
     list<point2d>::iterator iter;
@@ -340,6 +345,10 @@ void DrawNav(cv::Mat &img)
     point2i centerPixel = point2i{img.rows/2, img.cols/2};
 
     for (int i = navLeft; i < navRight; i ++) {
+        if (sqrt(sqr(nav[navLeft].x - centerPoint.x)+sqr(nav[navLeft].y - centerPoint.y)) > 30.0) {
+            navLeft ++;
+            continue;
+        }
         point2d tmpPoint;
         tmpPoint.x = centerPixel.y;
         tmpPoint.y = centerPixel.x;
@@ -361,9 +370,13 @@ void DrawNav(cv::Mat &img)
              &&(navLeft == i - 1))
             navLeft = i;
         cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 3, cv::Scalar(0,255,0), -1, 8);
+        // draw weak labels
+        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 4, cv::Scalar(1), -1, 8);
     }
-
     for (; navRight < nav.size(); navRight ++) {
+        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 30.0) {
+            break;
+        }
         point2d tmpPoint;
         tmpPoint.x = centerPixel.y;
         tmpPoint.y = centerPixel.x;
@@ -383,6 +396,35 @@ void DrawNav(cv::Mat &img)
         if (tmpPoint.x < 0 || tmpPoint.y < 0 || tmpPoint.x > img.rows || tmpPoint.y > img.cols)
             break;
         cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 3, cv::Scalar(0,255,0), -1, 8);
+        // draw weak labels
+        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 4, cv::Scalar(1), -1, 8);
+    }
+}
+
+void DrawObs(cv::Mat &img, cv::Mat &weakGT)
+{
+    for (int y=0; y<gm.len; y++) {
+        for (int x=0; x<gm.wid; x++) {
+            if (gm.demhnum[y*gm.wid+x] > 300 && !gm.demgnum[y*gm.wid+x]) {
+                weakGT.at<uchar>(y, x) = 2;
+                img.at<Vec3b>(y, x)[0] = 0;
+                img.at<Vec3b>(y, x)[1] = 0;
+                img.at<Vec3b>(y, x)[2] = 255;
+            }
+        }
+    }
+}
+
+void DrawUnlabeled(cv::Mat &img, cv::Mat &weakGT)
+{
+    for (int y=0; y<img.rows; y++) {
+        for (int x=0; x<img.cols; x++) {
+            int sigma = img.at<Vec3b>(y, x)[0] + img.at<Vec3b>(y, x)[1] + img.at<Vec3b>(y, x)[2];
+            // Unlabeled pixels with observation
+            if (sigma > 0 && weakGT.at<uchar>(y, x) == 0) {
+                weakGT.at<uchar>(y, x) = 3;
+            }
+        }
     }
 }
 
@@ -407,26 +449,31 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         exit (1);
     }
     // dsv
-    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_0.dsv", "r")) == NULL) {
+    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_2.dsv", "r")) == NULL) {
         printf("File open failure\n");
         getchar ();
         exit (1);
     }
     // video
-    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi");
-    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi.ts", "r");
+    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi");
+    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi.ts", "r");
     if (!cap.isOpened()) {
         printf("Error opening video stream or file.\n");
         getchar();
         exit(1);
     }
     // nav
-    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.nav", "r")) == NULL) {
+    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.nav", "r")) == NULL) {
         printf("Nav open failure\n");
         getchar ();
         exit (1);
     }
     LoadNav();
+    // Camera/Velodyne calib file
+    if(!LoadCameraCalib("/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DsvSegRegion/Sampledata-001-Camera.camera")){
+        printf("Open Camera Calibration files fails.\n");
+        camCalibFlag = false;
+    }
 
     LONGLONG fileSize = myGetFileSize(dfp);
     dFrmNum = fileSize / 580 / dsbytesiz;
@@ -435,6 +482,9 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 	InitDmap (&gm);
 	InitDmap (&ggm);
 	onefrm= new ONEDSVFRAME[1];
+    if (camCalibFlag) {
+        originFrm = new ONEDSVFRAME[1];
+    }
 	IplImage * col = cvCreateImage (cvSize (1024, rm.len*3),IPL_DEPTH_8U,3); 
 	CvFont font;
 	cvInitFont(&font,CV_FONT_HERSHEY_DUPLEX, 1,1, 0, 2);
@@ -470,7 +520,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
         //绘制历史轨迹
         DrawTraj(dm.lmap);
-        DrawTraj(gm.smap);
+//        DrawTraj(gm.smap);
 
         //可视化
 
@@ -483,7 +533,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         cv::Mat pmapRGB;          // 通行概率图 伪彩可视化
         cv::applyColorMap(cvarrToMat(gm.pmap), pmapRGB, cv::COLORMAP_BONE);
 
-        // 可视化视频
+        // 可视化视频(要在激光点进行校准前，使用原始激光数据)
         cv::Mat vFrame;
         int vTs;
         cap >> vFrame;
@@ -494,7 +544,14 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
             fscanf(tsFp, "%d\n", &vTs);
         }
         cv::resize(vFrame, vFrame, cv::Size(vFrame.cols / 3, vFrame.rows / 3));
-        if (!vFrame.empty()) cv::imshow("video", vFrame);
+        if (!vFrame.empty()) {
+            cv::imshow("video", vFrame);
+            if (camCalibFlag) {
+                cv::Mat pvFrame = vFrame.clone();
+                pointCloudsProject(pvFrame, gm);
+                cv::imshow("video & point cloud", pvFrame);
+            }
+        }
 
         cv::Mat visImg;
         if (dm.lmap) {    // 单帧 可行驶区域
@@ -510,8 +567,13 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
         // 可视化待标注的DEM
         cv::Mat zMap = cv::cvarrToMat(gm.zmap);
+        cv::Mat weakGT(gm.smap->height, gm.smap->width, CV_8UC1);
+        weakGT.setTo(0);
         cv::cvtColor(zMap, zMap, cv::COLOR_GRAY2BGR);
-        DrawNav(zMap);
+        DrawNav(zMap, weakGT);
+        DrawObs(zMap, weakGT);
+        DrawUnlabeled(zMap, weakGT);
+        cv::flip(weakGT, weakGT, 0);
         cv::flip(zMap, zMap, 0);
         if (!zMap.empty()) cv::imshow("label_img", zMap);
 
@@ -520,7 +582,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         if (dFrmNo > 20 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
             stringstream s_fno;
             s_fno << setw(8) << setfill('0') << onefrm->dsv[0].millisec;
-            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_0/";
+            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_2/";
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
@@ -528,7 +590,8 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
             cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", weakGT);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);

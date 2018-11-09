@@ -12,6 +12,7 @@
 #include <fstream>
 #include <algorithm>
 #include <queue>
+#include <CAL_MAIN.H>
 
 #include <opencv2/opencv.hpp>
 
@@ -276,3 +277,5 @@ void CallbackLocDem(int event, int x, int y, int flags, void *ustc);
 void LabelRoadSurface (DMAP &glo);
 void LabelObstacle (DMAP &glo);
 void ExtractRoadCenterline (DMAP &glo);
+
+void pointCloudsProject(cv::Mat &img, DMAP &gm);
