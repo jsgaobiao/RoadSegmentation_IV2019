@@ -1,6 +1,6 @@
 ### 标注软件DemLabelTool使用方法
 
-1. 使用QtCreator打开工程，并编译通过
+1. 在Ubuntu系统下，使用QtCreator打开工程，并编译通过
 2. 将main.cpp开头的数据路径替换成本地的数据路径
     * FILE_LIST_PATH: 待标注文件名列表
     * ANNOTATION_PATH:保存人工标注真值的路径（需要自己建立文件夹）
