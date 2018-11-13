@@ -240,7 +240,6 @@ void PredictGloDem (DMAP &gmtar, DMAP &gmtmp)
     if (!gmtar.dataon)
         return;
 
-    //gmtar is the data of the previous frame
     //copy gmtar to gmtmp
     CopyGloDem (&gmtmp, &gmtar);
     //clear gmtar

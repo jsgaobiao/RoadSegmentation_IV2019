@@ -5,6 +5,7 @@ extern ONEDSVFRAME	*originFrm;
 
 void pointCloudsProject(cv::Mat &img, DMAP &gm)
 {
+    cv::Mat baseImg = img.clone();
     for (int i = 0; i < BKNUM_PER_FRM; i ++) {
         for (int j = 0; j < LINES_PER_BLK; j ++) {
             for (int k = 0; k < PNTS_PER_LINE; k ++) {
@@ -13,7 +14,9 @@ void pointCloudsProject(cv::Mat &img, DMAP &gm)
                 if (!p->i) continue;
                 // 计算投影坐标
                 double newX, newY;
-                WC2IC_fang(origin_p->x, origin_p->y, origin_p->z, &newX, &newY);
+                WC2IC_fang(-origin_p->y, origin_p->x, origin_p->z, &newX, &newY);
+                newX /= 3.0;
+                newY /= 3.0;
 
                 int ix = nint(p->x/PIXSIZ) + WIDSIZ/PIXSIZ/2;
                 int iy = nint(p->y/PIXSIZ) + LENSIZ/PIXSIZ/2;
@@ -24,9 +27,10 @@ void pointCloudsProject(cv::Mat &img, DMAP &gm)
                 else
                     pColor = cv::Scalar(0, 0, 255);
 
-                if (p->y > 0)   // 车辆前方的激光点
-                    cv::circle(img, cv::Point(newX, newY), 3, pColor, 1);
+                if (origin_p->x > 5)   // 保留车辆前方5m以外的激光点，5m内有噪点
+                    cv::circle(img, cv::Point(newX, newY), 2, pColor, 1);
             }
         }
     }
+    addWeighted(baseImg, 0.6, img, 0.5, 0, img);
 }

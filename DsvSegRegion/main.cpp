@@ -344,6 +344,11 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
     point2d centerPoint = point2d{iter->x, iter->y};
     point2i centerPixel = point2i{img.rows/2, img.cols/2};
 
+    // navRight的时间至少比当前时间靠后
+    while (nav[navRight].millisec < onefrm->dsv[0].millisec) {
+        if (navRight < nav.size()) navRight ++;
+                            else   break;
+    }
     for (int i = navLeft; i < navRight; i ++) {
         if (sqrt(sqr(nav[navLeft].x - centerPoint.x)+sqr(nav[navLeft].y - centerPoint.y)) > 30.0) {
             navLeft ++;
@@ -374,7 +379,7 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
         cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 4, cv::Scalar(1), -1, 8);
     }
     for (; navRight < nav.size(); navRight ++) {
-        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 30.0) {
+        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 25.0) {
             break;
         }
         point2d tmpPoint;
@@ -449,21 +454,21 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         exit (1);
     }
     // dsv
-    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_2.dsv", "r")) == NULL) {
+    if ((dfp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_0.dsv", "r")) == NULL) {
         printf("File open failure\n");
         getchar ();
         exit (1);
     }
     // video
-    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi");
-    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.avi.ts", "r");
+    VideoCapture cap("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi");
+    FILE* tsFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi.ts", "r");
     if (!cap.isOpened()) {
         printf("Error opening video stream or file.\n");
         getchar();
         exit(1);
     }
     // nav
-    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/2.nav", "r")) == NULL) {
+    if ((navFp = fopen("/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/all.nav", "r")) == NULL) {
         printf("Nav open failure\n");
         getchar ();
         exit (1);
@@ -476,7 +481,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
     }
 
     LONGLONG fileSize = myGetFileSize(dfp);
-    dFrmNum = fileSize / 580 / dsbytesiz;
+    dFrmNum = fileSize / (BKNUM_PER_FRM) / dsbytesiz;
 	InitRmap (&rm);
 	InitDmap (&dm);
 	InitDmap (&gm);
@@ -579,18 +584,18 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
         // 将图片保存为png格式，用作训练/测试数据
         cv::Mat gtMap(gm.smap->height, gm.smap->width, CV_8UC1);
-        if (dFrmNo > 20 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
+        if (dFrmNo > 50 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
             stringstream s_fno;
             s_fno << setw(8) << setfill('0') << onefrm->dsv[0].millisec;
-            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_2/";
+            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation/";
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", weakGT);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
 //            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
@@ -619,7 +624,7 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
             if (dFrmNo >= dFrmNum) {
                 dFrmNo = dFrmNum - 1;
             }
-            fseeko64(dfp, dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
+            fseeko64(dfp, (LONGLONG)dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
             continue;
         }
         dFrmNo++;
