@@ -11,6 +11,8 @@
     * CAM_CALIB_FILE:激光和相机的标定文件
 3. 如果标注的是部分数据，将main.cpp开头的START_TIME和END_TIME设置为起止时间戳
     START_TIME默认为0
+4. 运行程序
+![标注界面](./resource/desk.png)
 
 ### 标注程序的逻辑
 
