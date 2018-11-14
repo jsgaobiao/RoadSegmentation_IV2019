@@ -109,8 +109,8 @@ bool LoadCalibFile (const char *szFile);
 void Gt2BGR(cv::Mat &img);
 void BGR2Gt(cv::Mat &img, cv::Mat gt);
 bool LoadCameraCalib (const char *filename);
-void pointCloudsProject(cv::Mat &img, cv::Mat gm);
-point2d CorrectPoints (point3fi p, ONEDSVDATA dsv);
+void pointCloudsProject(cv::Mat &img, cv::Mat gm, cv::Mat zmap);
+point3fi CorrectPoints (point3fi p, ONEDSVDATA dsv);
 void TransAnnotation(cv::Mat &srcImg);
 
 // Calculation.cpp

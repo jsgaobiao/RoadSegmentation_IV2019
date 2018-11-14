@@ -178,7 +178,7 @@ void CallbackAnnotation(int event, int x, int y, int flags, void *param)
     if (event == CV_EVENT_LBUTTONUP) {
         // Show point cloud projected to the video
         cv::Mat tmpImg = videoImg.clone();
-        pointCloudsProject(tmpImg, newGtImg);
+        pointCloudsProject(tmpImg, newGtImg, inputImg);
         cv::imshow("video & point cloud", tmpImg);
         cv::imshow("newGT", newGtImg);
         inputImgForVis = inputImg.clone();
@@ -196,7 +196,7 @@ void CallbackInput(int event, int x, int y, int flags, void *param)
     if (event == CV_EVENT_LBUTTONUP) {
         // Show point cloud projected to the video
         cv::Mat tmpImg = videoImg.clone();
-        pointCloudsProject(tmpImg, newGtImg);
+        pointCloudsProject(tmpImg, newGtImg, inputImg);
         cv::imshow("video & point cloud", tmpImg);
         cv::imshow("newGT", newGtImg);
         inputImgForVis = inputImg.clone();
@@ -269,7 +269,7 @@ int main()
 
         // Show point cloud projected to the video
         tmpImg = videoImg.clone();
-        pointCloudsProject(tmpImg, newGtImg);
+        pointCloudsProject(tmpImg, newGtImg, inputImg);
         cv::imshow("newGT", newGtImg);
         cv::imshow("video & point cloud", tmpImg);
 

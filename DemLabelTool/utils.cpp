@@ -49,7 +49,7 @@ void TransAnnotation(cv::Mat &srcImg)
     }
 }
 
-void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg)
+void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
 {
     double ratio = img.rows / 1086.0;
     cv::Mat baseImg = img.clone();
@@ -60,7 +60,16 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg)
                 if (!p->i) continue;
 
                 // 按照标定参数校准
-                point2d tp = CorrectPoints (*p, onefrm->dsv[i]);
+                point3fi tp = CorrectPoints (*p, onefrm->dsv[i]);
+                int ix = nint(tp.x/PIXSIZ) + WIDSIZ/PIXSIZ/2;
+                int iy = nint(tp.y/PIXSIZ) + LENSIZ/PIXSIZ/2;
+                iy = _gtImg.rows - iy;
+
+                // 投影后的高度
+                int pHeight = BOUND(tp.z * 50 + 100,  1, 255);
+                // 只保留输入DEM高度下方的激光点进行投影
+                if (pHeight > zmap.at<cv::Vec3b>(iy, ix)[0])
+                    continue;
 
                 // 计算投影坐标
                 double newX, newY;
@@ -68,9 +77,6 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg)
                 newX *= ratio;
                 newY *= ratio;
 
-                int ix = nint(tp.x/PIXSIZ) + WIDSIZ/PIXSIZ/2;
-                int iy = nint(tp.y/PIXSIZ) + LENSIZ/PIXSIZ/2;
-                iy = _gtImg.rows - iy;
                 cv::Scalar pColor;
                 if (_gtImg.at<cv::Vec3b>(iy, ix)[1] == 255)  // passable
                     pColor = cv::Scalar(0, 255, 0);
@@ -100,7 +106,7 @@ LONGLONG myGetFileSize(FILE *f)
     return retSize;
 }
 
-point2d CorrectPoints (point3fi p, ONEDSVDATA dsv)
+point3fi CorrectPoints (point3fi p, ONEDSVDATA dsv)
 {
     point3fi pt = p;
     MAT2D	rot1, rot2;
@@ -134,7 +140,8 @@ point2d CorrectPoints (point3fi p, ONEDSVDATA dsv)
     rotatePoint2d (shv, rot2);	//R_tar^{-1}*(SHV_src-SHV_tar)
     shiftPoint2d (pp, shv);		//p'=R_tar^{-1}*R_src*p+R_tar^{-1}*(SHV_src-SHV_tar)
 
-    return pp;
+    pt.x = pp.x; pt.y = pp.y;
+    return pt;
 }
 
 //读取一帧vel64数据（一帧为580×12×32个激光点）保存到onefrm->dsv，未作坐标转换
