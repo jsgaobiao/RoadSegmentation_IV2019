@@ -9,8 +9,8 @@ string DSV_FILE = "/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guili
 string AVI_FILE = "/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi";
 string CAM_CALIB_FILE = "/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DsvSegRegion/Sampledata-001-Camera.camera";
 
-int START_TIME = 0;
-int END_TIME = 1E10;
+long long START_TIME = 0;
+long long END_TIME = 1E10;
 
 FILE *dfp;
 FILE* fFileNameList;
@@ -218,9 +218,29 @@ void SaveNewGT(int idx)
     }
 }
 
+void CheckTimestampRange()
+{
+    ReadOneDsvFrame();
+    long long startTs = onefrm->dsv[0].millisec;
+    int err = fseeko64(dfp, -(LONGLONG)dsbytesiz * BKNUM_PER_FRM, SEEK_END);
+    ReadOneDsvFrame();
+    long long endTs = onefrm->dsv[0].millisec;
+    printf("DSV's time range: %lld ~ %lld\n\n", startTs, endTs);
+    if (START_TIME < startTs && START_TIME != 0) {
+        printf(RED "[Warning] START_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, START_TIME);
+        START_TIME = startTs;
+    }
+    if (END_TIME > endTs && END_TIME != 1E10) {
+        printf(RED "[Warning] END_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, END_TIME);
+        END_TIME = endTs;
+    }
+    fseeko64(dfp, 0, SEEK_SET);
+}
+
 int main()
 {
     Init();
+    CheckTimestampRange();
 
     for (int idx = 0; idx < fileName.size(); idx ++) {
         if (atoi(fileName[idx].c_str()) < START_TIME) continue;

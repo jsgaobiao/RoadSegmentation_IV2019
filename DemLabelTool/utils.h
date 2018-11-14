@@ -10,6 +10,9 @@
 using namespace std;
 using namespace cv;
 
+#define RED "\e[1;31m"
+#define NONE "\e[0m"
+
 #define BOUND(x,min,max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #define	nint(x)			(int)((x>0)?(x+0.5):(x-0.5))
 #define	sqr(x)			((x)*(x))

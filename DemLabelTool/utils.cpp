@@ -68,7 +68,7 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
                 // 投影后的高度
                 int pHeight = BOUND(tp.z * 50 + 100,  1, 255);
                 // 只保留输入DEM高度下方的激光点进行投影
-                if (pHeight > zmap.at<cv::Vec3b>(iy, ix)[0])
+                if (pHeight > zmap.at<cv::Vec3b>(iy, ix)[0] + 1)
                     continue;
 
                 // 计算投影坐标
