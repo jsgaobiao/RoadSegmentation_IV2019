@@ -35,7 +35,7 @@ cv::Mat annotatedImg;           // annotated layer (Gray)
 
 double  SCALE_RATIO     = 2.0;
 int     ACTIVE_LABEL    = 0;           // annotation label class
-int     PEN_WIDTH       = 2;
+int     PEN_WIDTH       = 3;
 
 void Init()
 {
@@ -232,12 +232,14 @@ void CheckTimestampRange()
         getchar();
         START_TIME = startTs;
     }
+    if (START_TIME == 0) START_TIME = startTs;
     if (END_TIME > endTs && END_TIME != 1E10) {
         printf(RED "[Warning] END_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, END_TIME);
         printf("Press [any key] to continue\n");
         getchar();
         END_TIME = endTs;
     }
+    if (END_TIME == 1E10) END_TIME = endTs;
     fseeko64(dfp, 0, SEEK_SET);
 }
 
@@ -252,6 +254,12 @@ int main()
         if (atoi(fileName[idx].c_str()) == START_TIME) {
             dFrmNo = idx + 318;
             int err = fseeko64(dfp, (LONGLONG)dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
+        }
+        if (atoi(fileName[idx].c_str()) > END_TIME) {
+            printf(RED "End of DSV file. (Timestamp : %lld)\n" NONE, END_TIME);
+            printf("Press [any key] to exit.\n");
+            getchar();
+            return 0;
         }
 
         // Read DSV data
@@ -345,6 +353,12 @@ int main()
         else
         if (WaitKey == 32) {        // space bar: save the human annotation & new ground truth
             SaveNewGT(idx);
+        }
+        else
+        if (WaitKey == 'p') {        // change PEN_WIDTH
+            printf("Please enter pen width (current PEN_WIDTH=%d): ", PEN_WIDTH);
+            scanf("%d", &PEN_WIDTH);
+            idx --;
         }
         else
         if (WaitKey != -1) {
