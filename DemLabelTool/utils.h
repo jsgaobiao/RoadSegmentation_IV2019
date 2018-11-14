@@ -17,6 +17,7 @@ using namespace cv;
 #define	nint(x)			(int)((x>0)?(x+0.5):(x-0.5))
 #define	sqr(x)			((x)*(x))
 #define topi (acos(-1.0)/180.0)     // pi/180
+#define HEIGHT_DELTA 10
 
 typedef int BOOL;
 typedef unsigned char BYTE;
