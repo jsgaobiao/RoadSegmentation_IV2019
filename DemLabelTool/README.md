@@ -56,22 +56,22 @@
 
    * 道路中间的异常红色线条为HDL-32和HDL-64干扰产生的激光点，需要去除
    * 微调道路边界
-      标注前![example1_unlabel](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example1_unlabel.png)
+      标注前![example1_unlabel](./resource/example1_unlabel.png)
 
-      标注后![example1_label](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example1_label.png)
+      标注后![example1_label](./resource/example1_label.png)
 
    2. 样例2（道路两侧有模糊地带）
    * 将模糊地带（物理可通行，但是通行代价明显大于道路区域）标记为unknown
-     标注前![example2_unlabel](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example2_unlabel.png)
-   标注后![example2_label](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example2_label.png)
+     标注前![example2_unlabel](./resource/example2_unlabel.png)
+   标注后![example2_label](./resource/example2_label.png)
 
    3. 样例3 （大平原）
    * 红绿混杂的模糊区域和零散的边缘标记为unknown
-   标记前![example3_unlabel](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example3_unlabel.png)
-   标记后![example3_label](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example3_label.png)
+   标记前![example3_unlabel](./resource/example3_unlabel.png)
+   标记后![example3_label](./resource/example3_label.png)
    4. 样例4（类似样例2）
 
-      标记前![example4_unlabel](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example4_unlabel.png)
+      标记前![example4_unlabel](./resource/example4_unlabel.png)
 
-      标记后![example4_label](/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DemLabelTool/resource/example4_label.png)
+      标记后![example4_label](./resource/example4_label.png)
 
