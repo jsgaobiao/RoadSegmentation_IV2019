@@ -39,9 +39,9 @@
 
 ### 标注程序的逻辑
 
-1. 读取ANNOTATION_PATH中的待标注图片（包括input/video/ground truth三类，input为激光DEM高程图，video为视频截图，groundTruth为传统调参方法“DsvSegRegion”生成的真值）
+1. 读取UNANNOTATED_PATH中的待标注图片（包括input/video/ground truth三类，input为激光DEM高程图，video为视频截图，groundTruth为传统调参方法“DsvSegRegion”生成的真值）
 2. 在DSV文件和视频文件中，找到1.中对应时间戳的激光和图像，根据groundTruth中的激光点分类，将激光点投影到视频中
-3. 人工标注：在传统方法生成的groundTruth的基础上进行修改，并将人工标注的真值保存到UNANNOTATED_PATH中
+3. 人工标注：在传统方法生成的groundTruth的基础上进行修改，并将人工标注的真值保存到ANNOTATION_PATH中
 4. 激光到视频的投影存在一定误差，仅供参考
 
 ### 标注原则
