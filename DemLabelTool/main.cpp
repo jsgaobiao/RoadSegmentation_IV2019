@@ -228,10 +228,14 @@ void CheckTimestampRange()
     printf("DSV's time range: %lld ~ %lld\n\n", startTs, endTs);
     if (START_TIME < startTs && START_TIME != 0) {
         printf(RED "[Warning] START_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, START_TIME);
+        printf("Press [any key] to continue\n");
+        getchar();
         START_TIME = startTs;
     }
     if (END_TIME > endTs && END_TIME != 1E10) {
         printf(RED "[Warning] END_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, END_TIME);
+        printf("Press [any key] to continue\n");
+        getchar();
         END_TIME = endTs;
     }
     fseeko64(dfp, 0, SEEK_SET);
