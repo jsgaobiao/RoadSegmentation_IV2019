@@ -84,6 +84,9 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
                 if (_gtImg.at<cv::Vec3b>(iy, ix)[2] == 255)  // unpassable
                     pColor = cv::Scalar(0, 0, 255);
                 else
+                if (_gtImg.at<cv::Vec3b>(iy, ix)[0] == 255)  // uncertain passable
+                    pColor = cv::Scalar(255, 0, 0);
+                else
                     continue;        // unknown
 
                 if (p->x > 6 && p->x < 50)   // 保留车辆前方6-50m的激光点，排除噪点
@@ -230,6 +233,12 @@ void Gt2BGR(cv::Mat &img)
                 img.at<cv::Vec3b>(i, j)[1] = 0;
                 img.at<cv::Vec3b>(i, j)[2] = 255;
             }
+            else
+            if (g == 3) {   // Unpassable
+                img.at<cv::Vec3b>(i, j)[0] = 255;
+                img.at<cv::Vec3b>(i, j)[1] = 0;
+                img.at<cv::Vec3b>(i, j)[2] = 0;
+            }
         }
     }
 }
@@ -244,6 +253,10 @@ void BGR2Gt(cv::Mat &img, cv::Mat gt)
             else
             if (img.at<cv::Vec3b>(i, j)[2] == 255) {   // Unpassable
                 gt.at<uchar>(i, j) = 2;
+            }
+            else
+            if (img.at<cv::Vec3b>(i, j)[0] == 255) {   // Uncertain passable
+                gt.at<uchar>(i, j) = 3;
             }
             else {
                 gt.at<uchar>(i, j) = 0;

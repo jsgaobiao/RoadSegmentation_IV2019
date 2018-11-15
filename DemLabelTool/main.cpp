@@ -124,6 +124,7 @@ void LabelImage(int x, int y)
     if (ACTIVE_LABEL == 0) {c = 0; cs = cv::Scalar(0, 0, 0);} // Unknown
     if (ACTIVE_LABEL == 1) {c = 1; cs = cv::Scalar(0, 255, 0);} // Passable
     if (ACTIVE_LABEL == 2) {c = 2; cs = cv::Scalar(0, 0, 255);} // Unpassable
+    if (ACTIVE_LABEL == 3) {c = 3; cs = cv::Scalar(255, 0, 0);} // Uncertain passable
 
     // Can't label the pixel without laser point
     if (inputImg.at<cv::Vec3b>(x, y)[0] == 0 &&
@@ -156,6 +157,11 @@ void UpdateVis()
                 newGtImg.at<cv::Vec3b>(i, j)[0] = 0;
                 newGtImg.at<cv::Vec3b>(i, j)[1] = 0;
                 newGtImg.at<cv::Vec3b>(i, j)[2] = 255;
+            }
+            if (ac == 3) {      // Uncertain passable
+                newGtImg.at<cv::Vec3b>(i, j)[0] = 255;
+                newGtImg.at<cv::Vec3b>(i, j)[1] = 0;
+                newGtImg.at<cv::Vec3b>(i, j)[2] = 0;
             }
         }
     }
@@ -347,6 +353,12 @@ int main()
         else
         if (WaitKey == '2') {       // change active label class
             ACTIVE_LABEL = 2;
+            printf("Active Label : %c\n", WaitKey);
+            idx --;
+        }
+        else
+        if (WaitKey == '3') {       // change active label class
+            ACTIVE_LABEL = 3;
             printf("Active Label : %c\n", WaitKey);
             idx --;
         }

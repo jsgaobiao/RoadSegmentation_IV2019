@@ -16,7 +16,7 @@
 5. 在input或者annotation窗口进行标注
 6. 窗口内容说明：
   - input: 激光DEM高程图（颜色越白高度越高），车辆位置位于图片中心，行驶方向向上
-  - newGT: 真值图的可视化（绿色可通行，红色不可通行，黑色unknown）
+  - newGT: 真值图的可视化（绿色可通行，红色不可通行，蓝色为通行代价较高的模糊地带，黑色unknown）
   - annotation: input和newGT叠加的可视化图，用于标注
   - video:视频图像
   - video & point cloud: 将激光点投影到视频图像的结果
@@ -35,6 +35,7 @@
 |0              |  设置标注类别为0，Unknown|
 |1              | 设置标注类别为1，可通行（绿色）|
 |2              | 设置标注类别为2，不可通行（红色）|
+|3 | 设置标注类别为3，模糊区域/通行代价高（蓝色） |
 |esc           |退出|
 
 ### 标注程序的逻辑
@@ -46,9 +47,9 @@
 
 ### 标注原则
 
-1. 绝对可通行和绝对不可通行的区域进行标注
+1. 绝对可通行和绝对不可通行的区域用类别1\2标注
 
-2. 模棱两可的区域（例如草地），按照unknown标记
+2. 模棱两可的区域（例如草地），如果初始为可通行区域，则倾向按照类别3（模糊区域/通行代价高）标记
 
 3. 一些典型情况参考样例（标注前后对比图）
 
@@ -61,12 +62,12 @@
       标注后![example1_label](./resource/example1_label.png)
 
    2. 样例2（道路两侧有模糊地带）
-   * 将模糊地带（物理可通行，但是通行代价明显大于道路区域）标记为unknown
+   * 将模糊地带（物理可通行，但是通行代价明显大于道路区域）标记为类别3(蓝色)
      标注前![example2_unlabel](./resource/example2_unlabel.png)
    标注后![example2_label](./resource/example2_label.png)
 
    3. 样例3 （大平原）
-   * 红绿混杂的模糊区域和零散的边缘标记为unknown
+   * 红绿混杂的区域和零散的边缘，如果不能确定属于类别3，则标记为unknown
    标记前![example3_unlabel](./resource/example3_unlabel.png)
    标记后![example3_label](./resource/example3_label.png)
    4. 样例4（类似样例2）
