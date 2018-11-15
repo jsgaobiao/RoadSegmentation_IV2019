@@ -46,8 +46,10 @@ void LoadConfigFile()
     if (a == "FILE_LIST_PATH") FILE_LIST_PATH = b;
     configFile >> a >> e >> b;
     if (a == "ANNOTATION_PATH") ANNOTATION_PATH = b;
+    if (ANNOTATION_PATH[ANNOTATION_PATH.length() - 1] != '/') ANNOTATION_PATH += '/';
     configFile >> a >> e >> b;
     if (a == "UNANNOTATED_PATH") UNANNOTATED_PATH = b;
+    if (UNANNOTATED_PATH[UNANNOTATED_PATH.length() - 1] != '/') UNANNOTATED_PATH += '/';
     configFile >> a >> e >> b;
     if (a == "CALIB_FILE") CALIB_FILE = b;
     configFile >> a >> e >> b;
@@ -260,7 +262,7 @@ void CheckTimestampRange()
     printf("DSV's time range: %lld ~ %lld\n\n", startTs, endTs);
     if (START_TIME < startTs && START_TIME != 0) {
         printf(RED "[Warning] START_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, START_TIME);
-        printf("Press [any key] to continue\n");
+        printf("Press [any key] toANNOTATION_PATH continue\n");
         getchar();
         START_TIME = startTs;
     }
