@@ -1,7 +1,7 @@
 ### 标注软件DemLabelTool使用方法
 
 1. 在Ubuntu系统下，使用QtCreator打开工程，并编译通过
-2. 将main.cpp开头的数据路径替换成本地的数据路径
+2. 将config.txt中的数据路径替换成本地的数据路径
     * FILE_LIST_PATH: 待标注文件名列表
     * ANNOTATION_PATH:保存人工标注真值的路径（需要自己建立文件夹）
     * UNANNOTATED_PATH:待标注的文件路径
@@ -9,8 +9,9 @@
     * DSV_FILE:激光+定位数据.dsv
     * AVI_FILE:视频文件.avi 需要在相同路径下包含同名的 .avi.ts文件
     * CAM_CALIB_FILE:激光和相机的标定文件
-3. 如果标注的是部分数据，将main.cpp开头的START_TIME和END_TIME设置为起止时间戳
-    START_TIME默认为0, END_TIME默认为1E10. 如果时间段超出DSV文件范围，会有警告提醒. 请根据时间段选择合适的DSV文件
+    * START_TIME:标注开始时间戳，0表示从头开始
+    * END_TIME:标注结束时间戳，-1表示到文件结尾
+3. 如果时间段[START_TIME, END_TIME]超出DSV文件范围，会有警告提醒. 请根据时间段选择合适的DSV文件
 4. 运行程序
     ![标注界面](./resource/desk.png)
 5. 在input或者annotation窗口进行标注

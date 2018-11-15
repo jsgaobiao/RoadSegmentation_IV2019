@@ -1,13 +1,14 @@
 #include <utils.h>
 
-string FILE_LIST_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation.txt";
-string ANNOTATION_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_annotated/";
-string UNANNOTATED_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation/";
+string CONFIG_FILE = "../DemLabelTool/config.txt";
+string FILE_LIST_PATH;
+string ANNOTATION_PATH;
+string UNANNOTATED_PATH;
 
-string CALIB_FILE = "/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/vel_hongling.calib";
-string DSV_FILE = "/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_0.dsv";
-string AVI_FILE = "/media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi";
-string CAM_CALIB_FILE = "/home/gaobiao/Documents/RoadSegmentation_IV2019/src/DsvSegRegion/Sampledata-001-Camera.camera";
+string CALIB_FILE;
+string DSV_FILE;
+string AVI_FILE;
+string CAM_CALIB_FILE;
 
 long long START_TIME = 0;
 long long END_TIME = 1E10;
@@ -36,6 +37,31 @@ cv::Mat annotatedImg;           // annotated layer (Gray)
 double  SCALE_RATIO     = 2.0;
 int     ACTIVE_LABEL    = 0;           // annotation label class
 int     PEN_WIDTH       = 3;
+
+void LoadConfigFile()
+{
+    ifstream configFile(CONFIG_FILE);
+    string a, e, b;
+    configFile >> a >> e >> b;
+    if (a == "FILE_LIST_PATH") FILE_LIST_PATH = b;
+    configFile >> a >> e >> b;
+    if (a == "ANNOTATION_PATH") ANNOTATION_PATH = b;
+    configFile >> a >> e >> b;
+    if (a == "UNANNOTATED_PATH") UNANNOTATED_PATH = b;
+    configFile >> a >> e >> b;
+    if (a == "CALIB_FILE") CALIB_FILE = b;
+    configFile >> a >> e >> b;
+    if (a == "DSV_FILE") DSV_FILE = b;
+    configFile >> a >> e >> b;
+    if (a == "AVI_FILE") AVI_FILE = b;
+    configFile >> a >> e >> b;
+    if (a == "CAM_CALIB_FILE") CAM_CALIB_FILE = b;
+    configFile >> a >> e >> b;
+    if (a == "START_TIME") START_TIME = atoi(b.c_str());
+    configFile >> a >> e >> b;
+    if (a == "END_TIME") END_TIME = atoi(b.c_str());
+    if (END_TIME == -1) END_TIME = 1E10;
+}
 
 void Init()
 {
@@ -251,6 +277,7 @@ void CheckTimestampRange()
 
 int main()
 {
+    LoadConfigFile();
     Init();
     CheckTimestampRange();
 
