@@ -1,8 +1,7 @@
 *.avi
-build-DemLabelTool-Desktop_Qt_5_10_1_GCC_64bit-Debug
-build-DemLabelTool-Desktop_Qt_5_10_1_GCC_64bit-Release
-build-DsvSegRegion-Desktop_Qt_5_10_1_GCC_64bit-Debug
-build-DsvSegRegion-Desktop_Qt_5_10_1_GCC_64bit-Release
+build-*-Debug/
+build-*-Release/
+build*/
 *.user
 *.out
 *.log
