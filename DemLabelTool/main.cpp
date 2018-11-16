@@ -22,8 +22,8 @@ FILE* fFileNameList;
 std::vector<NAVDATA> nav;
 bool camCalibFlag = true;
 TRANSINFO calibInfo;
-int dsbytesiz = sizeof (point3d)*2 + sizeof (ONEVDNDATA);
-ONEDSVFRAME	*onefrm;
+int dsbytesiz = sizeof (point3d) * 2 + sizeof (ONEVDNDATA);
+ONEDSVFRAME     *onefrm;
 int dFrmNum;
 int dFrmNo;
 int waitkeydelay = 0;
@@ -38,16 +38,22 @@ cv::Mat newGtImg;               // new ground truth (BGR), ready to be written
 cv::Mat mergeImg;               // merge input & gt for visualization
 cv::Mat annotatedImg;           // annotated layer (Gray)
 
-double  SCALE_RATIO     = 2.0;
-int     ACTIVE_LABEL    = 0;           // annotation label class
-int     PEN_WIDTH       = 3;
+double SCALE_RATIO     = 2.0;
+int ACTIVE_LABEL    = 0;               // annotation label class
+int PEN_WIDTH       = 3;
 
 void LoadConfigFile()
 {
     QSettings *configFile = new QSettings(QString(CONFIG_FILE.c_str()), QSettings::IniFormat);
 
     ANNOTATION_PATH = configFile->value("Path/ANNOTATION_PATH").toString().toStdString();
+    if (ANNOTATION_PATH[ANNOTATION_PATH.length() - 1] != '/') {
+        ANNOTATION_PATH += '/';
+    }
     UNANNOTATED_PATH = configFile->value("Path/UNANNOTATED_PATH").toString().toStdString();
+    if (UNANNOTATED_PATH[UNANNOTATED_PATH.length() - 1] != '/') {
+        UNANNOTATED_PATH += '/';
+    }
     FILE_LIST = configFile->value("Path/FILE_LIST").toString().toStdString();
     CALIB_FILE = configFile->value("Path/CALIB_FILE").toString().toStdString();
     DSV_FILE = configFile->value("Path/DSV_FILE").toString().toStdString();
@@ -59,8 +65,7 @@ void LoadConfigFile()
     if (END_TIME == -1) END_TIME = 1E10;
 }
 
-void Init()
-{
+void Init() {
     // Read file name list of dataset
     fFileNameList = fopen(FILE_LIST.c_str(), "r");
     fileName.clear();
@@ -68,27 +73,27 @@ void Init()
     while (fscanf(fFileNameList, "%s\n", fName) != EOF) {
         fileName.push_back(fName);
     }
-    if (!LoadCalibFile (CALIB_FILE.c_str())) {
-        printf ("Invalid calibration file\n");
-        getchar ();
-        exit (1);
+    if (!LoadCalibFile(CALIB_FILE.c_str())) {
+        printf("Invalid calibration file\n");
+        getchar();
+        exit(1);
     }
     // dsv
     if ((dfp = fopen(DSV_FILE.c_str(), "r")) == NULL) {
         printf("DSV file open failure\n");
-        getchar ();
-        exit (1);
+        getchar();
+        exit(1);
     }
     // video
     cv::VideoCapture cap(AVI_FILE.c_str());
-    FILE* tsFp = fopen((AVI_FILE+".ts").c_str(), "r");
+    FILE* tsFp = fopen((AVI_FILE + ".ts").c_str(), "r");
     if (!cap.isOpened()) {
         printf("Error opening video stream or file.\n");
         getchar();
         exit(1);
     }
     // Camera/Velodyne calib file
-    if(!LoadCameraCalib(CAM_CALIB_FILE.c_str())){
+    if (!LoadCameraCalib(CAM_CALIB_FILE.c_str())) {
         printf("Open Camera Calibration files fails.\n");
         camCalibFlag = false;
     }
@@ -112,41 +117,53 @@ void Init()
     cv::moveWindow("human annotation", 400, 680);
 }
 
-void ReadDsv(int ts)
-{
+void ReadDsv(int ts) {
     // Back up pre frame's dsv[0]
-    if (preFrameDsv.millisec > 0) preFrameDsv = onefrm->dsv[0];
-    if (onefrm->dsv[0].millisec == ts) return;
+    if (preFrameDsv.millisec > 0) {
+        preFrameDsv = onefrm->dsv[0];
+    }
+    if (onefrm->dsv[0].millisec == ts) {
+        return;
+    }
 
     ReadOneDsvFrame();
-    dFrmNo ++;
+    dFrmNo++;
     while (onefrm->dsv[0].millisec < ts) {
         // Read next frame
         ReadOneDsvFrame();
-        dFrmNo ++;
+        dFrmNo++;
     }
     while (onefrm->dsv[0].millisec > ts) {
         // Read previous frame
         dFrmNo = max(dFrmNo - 2, 0);
         fseeko64(dfp, (LONGLONG)dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
         ReadOneDsvFrame();
-        dFrmNo ++;
+        dFrmNo++;
     }
 
     // if it's the first frame, set preFrameDsv to the current frame data
-    if (preFrameDsv.millisec == 0) preFrameDsv = onefrm->dsv[0];
+    if (preFrameDsv.millisec == 0) {
+        preFrameDsv = onefrm->dsv[0];
+    }
 }
 
-void LabelImage(int x, int y)
-{
+void LabelImage(int x, int y) {
     x = int(x / SCALE_RATIO);
     y = int(y / SCALE_RATIO);
     int c = 0;
     cv::Scalar cs(0, 0, 0);
-    if (ACTIVE_LABEL == 0) {c = 0; cs = cv::Scalar(0, 0, 0);} // Unknown
-    if (ACTIVE_LABEL == 1) {c = 1; cs = cv::Scalar(0, 255, 0);} // Passable
-    if (ACTIVE_LABEL == 2) {c = 2; cs = cv::Scalar(0, 0, 255);} // Unpassable
-    if (ACTIVE_LABEL == 3) {c = 3; cs = cv::Scalar(255, 0, 0);} // Uncertain passable
+    if (ACTIVE_LABEL == 0) {
+        c = 0; cs = cv::Scalar(0, 0, 0);
+    }                                                         // Unknown
+    if (ACTIVE_LABEL == 1) {
+        c = 1; cs = cv::Scalar(0, 255, 0);
+    }                                                           // Passable
+    if (ACTIVE_LABEL == 2) {
+        c = 2; cs = cv::Scalar(0, 0, 255);
+    }                                                           // Unpassable
+    if (ACTIVE_LABEL == 3) {
+        c = 3; cs = cv::Scalar(255, 0, 0);
+    }                                                           // Uncertain passable
 
     // Can't label the pixel without laser point
     if (inputImg.at<cv::Vec3b>(x, y)[0] == 0 &&
@@ -158,13 +175,14 @@ void LabelImage(int x, int y)
     cv::circle(inputImgForVis, cv::Point(y, x), PEN_WIDTH, cs, -1);
 }
 
-void UpdateVis()
-{
+void UpdateVis() {
     // Update newGT
-    for (int i = 0; i < annotatedImg.rows; i ++) {
-        for (int j = 0; j < annotatedImg.cols; j ++) {
+    for (int i = 0; i < annotatedImg.rows; i++) {
+        for (int j = 0; j < annotatedImg.cols; j++) {
             int ac = annotatedImg.at<uchar>(i, j);
-            if (ac == 255) continue;
+            if (ac == 255) {
+                continue;
+            }
             if (ac == 0) {      // Unknown
                 newGtImg.at<cv::Vec3b>(i, j)[0] = 0;
                 newGtImg.at<cv::Vec3b>(i, j)[1] = 0;
@@ -197,8 +215,7 @@ void UpdateVis()
     cv::imshow("input", tmpImg);
 }
 
-void CallbackAnnotation(int event, int x, int y, int flags, void *param)
-{
+void CallbackAnnotation(int event, int x, int y, int flags, void *param) {
     if (event == CV_EVENT_LBUTTONDOWN || (flags & CV_EVENT_FLAG_LBUTTON)) {
         LabelImage(y, x);
         UpdateVis();
@@ -215,8 +232,7 @@ void CallbackAnnotation(int event, int x, int y, int flags, void *param)
     }
 }
 
-void CallbackInput(int event, int x, int y, int flags, void *param)
-{
+void CallbackInput(int event, int x, int y, int flags, void *param) {
     if (event == CV_EVENT_LBUTTONDOWN || (flags & CV_EVENT_FLAG_LBUTTON)) {
         LabelImage(y, x);
         UpdateVis();
@@ -233,21 +249,18 @@ void CallbackInput(int event, int x, int y, int flags, void *param)
     }
 }
 // Save new ground truth
-void SaveNewGT(int idx)
-{
+void SaveNewGT(int idx) {
     cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
     writtenGtImg.setTo(0);
     BGR2Gt(newGtImg, writtenGtImg);
     if (cv::imwrite((ANNOTATION_PATH + fileName[idx] + "_gt.png").c_str(), writtenGtImg)) {
         printf("%s_gt.png saved!\n", fileName[idx].c_str());
-    }
-    else {
+    } else {
         printf("save error!\n");
     }
 }
 
-void CheckTimestampRange()
-{
+void CheckTimestampRange() {
     ReadOneDsvFrame();
     long long startTs = onefrm->dsv[0].millisec;
     int err = fseeko64(dfp, -(LONGLONG)dsbytesiz * BKNUM_PER_FRM, SEEK_END);
@@ -260,26 +273,36 @@ void CheckTimestampRange()
         getchar();
         START_TIME = startTs;
     }
-    if (START_TIME == 0) START_TIME = startTs;
+    if (START_TIME == 0) {
+        START_TIME = startTs;
+    }
     if (END_TIME > endTs && END_TIME != 1E10) {
         printf(RED "[Warning] END_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, END_TIME);
         printf("Press [any key] to continue\n");
         getchar();
         END_TIME = endTs;
     }
-    if (END_TIME == 1E10) END_TIME = endTs;
+    if (END_TIME == 1E10) {
+        END_TIME = endTs;
+    }
     fseeko64(dfp, 0, SEEK_SET);
 }
 
-int main()
-{
+int main(int argc, char* argv[]) {
+    if (argc > 1) {
+        CONFIG_FILE = argv[1];
+    }
     LoadConfigFile();
     Init();
     CheckTimestampRange();
 
-    for (int idx = 0; idx < fileName.size(); idx ++) {
-        if (atoi(fileName[idx].c_str()) < START_TIME) continue;
-        if (atoi(fileName[idx].c_str()) > END_TIME) break;
+    for (int idx = 0; idx < fileName.size(); idx++) {
+        if (atoi(fileName[idx].c_str()) < START_TIME) {
+            continue;
+        }
+        if (atoi(fileName[idx].c_str()) > END_TIME) {
+            break;
+        }
         if (atoi(fileName[idx].c_str()) == START_TIME) {
             dFrmNo = idx + 318;
             int err = fseeko64(dfp, (LONGLONG)dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
@@ -311,8 +334,7 @@ int main()
                 // transform the previous human annotation into the coordination of the newest position
                 TransAnnotation(annotatedImg);
             }
-        }
-        else {
+        } else {
             newGtImg = readImg.clone();
             Gt2BGR(newGtImg);
         }
@@ -339,65 +361,58 @@ int main()
 
         // Catch keyboard event
         int WaitKey = cv::waitKey(waitkeydelay);
-        if (WaitKey == 27)        // ESC
+        if (WaitKey == 27) {      // ESC
             break;
-        else
-        if (WaitKey == 'z') {     // Á¬Ðø²¥·Å
-            if (waitkeydelay==1) waitkeydelay = 0;
-                            else waitkeydelay = 1;
-        }
-        else
+        } else
+        if (WaitKey == 'z') {     // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            if (waitkeydelay == 1) {
+                waitkeydelay = 0;
+            } else {
+                waitkeydelay = 1;
+            }
+        } else
         if (WaitKey == 'a') {     // Back
             idx = max(idx - 2, -1);
             continue;
-        }
-        else
+        } else
         if (WaitKey == 'd') {     // Forword
             continue;
-        }
-        else
+        } else
         if (WaitKey == 'r') {       // Reset human annotation
             annotatedImg.setTo(255);
             std::remove((ANNOTATION_PATH + fileName[idx] + "_gt.png").c_str());
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey == '0') {       // change active label class
             ACTIVE_LABEL = 0;
             printf("Active Label : %c\n", WaitKey);
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey == '1') {       // change active label class
             ACTIVE_LABEL = 1;
             printf("Active Label : %c\n", WaitKey);
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey == '2') {       // change active label class
             ACTIVE_LABEL = 2;
             printf("Active Label : %c\n", WaitKey);
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey == '3') {       // change active label class
             ACTIVE_LABEL = 3;
             printf("Active Label : %c\n", WaitKey);
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey == 32) {        // space bar: save the human annotation & new ground truth
             SaveNewGT(idx);
-        }
-        else
+        } else
         if (WaitKey == 'p') {        // change PEN_WIDTH
             printf("Please enter pen width (current PEN_WIDTH=%d): ", PEN_WIDTH);
             scanf("%d", &PEN_WIDTH);
-            idx --;
-        }
-        else
+            idx--;
+        } else
         if (WaitKey != -1) {
-            idx --;
+            idx--;
         }
     }
     fclose(fFileNameList);
