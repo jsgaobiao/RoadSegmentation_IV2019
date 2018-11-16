@@ -106,6 +106,7 @@ extern int dsbytesiz;
 extern ONEDSVFRAME	*onefrm;
 extern int dFrmNo;
 extern ONEDSVDATA preFrameDsv;
+extern vector<cv::Scalar> colorTable;
 
 // utils.cpp
 LONGLONG myGetFileSize(FILE *f);
@@ -117,6 +118,7 @@ bool LoadCameraCalib (const char *filename);
 void pointCloudsProject(cv::Mat &img, cv::Mat gm, cv::Mat zmap);
 point3fi CorrectPoints (point3fi p, ONEDSVDATA dsv);
 void TransAnnotation(cv::Mat &srcImg);
+bool ColorEqual(cv::Vec3b a, cv::Scalar b);
 
 // Calculation.cpp
 void rMatrixInit (MATRIX &rt);

@@ -49,6 +49,11 @@ void TransAnnotation(cv::Mat &srcImg)
     }
 }
 
+bool ColorEqual(cv::Vec3b a, cv::Scalar b)
+{
+    return (a[0] == b[0] && a[1] == b[1] && a[2] == b[2]);
+}
+
 void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
 {
     double ratio = img.rows / 1086.0;
@@ -64,6 +69,8 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
                 int ix = nint(tp.x/PIXSIZ) + WIDSIZ/PIXSIZ/2;
                 int iy = nint(tp.y/PIXSIZ) + LENSIZ/PIXSIZ/2;
                 iy = _gtImg.rows - iy;
+                if (ix < 0 || iy < 0 || ix >= _gtImg.cols || iy >= _gtImg.rows)
+                    continue;
 
                 // 投影后的高度
                 int pHeight = BOUND(tp.z * 50 + 100,  1, 255);
@@ -77,20 +84,11 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
                 newX *= ratio;
                 newY *= ratio;
 
-                cv::Scalar pColor;
-                if (_gtImg.at<cv::Vec3b>(iy, ix)[1] == 255)  // passable
-                    pColor = cv::Scalar(0, 255, 0);
-                else
-                if (_gtImg.at<cv::Vec3b>(iy, ix)[2] == 255)  // unpassable
-                    pColor = cv::Scalar(0, 0, 255);
-                else
-                if (_gtImg.at<cv::Vec3b>(iy, ix)[0] == 255)  // uncertain passable
-                    pColor = cv::Scalar(255, 0, 0);
-                else
-                    continue;        // unknown
-
+                if (ColorEqual(_gtImg.at<cv::Vec3b>(iy, ix), colorTable[0]))  // unknown
+                    continue;
+                cv::Scalar c(_gtImg.at<cv::Vec3b>(iy, ix)[0], _gtImg.at<cv::Vec3b>(iy, ix)[1], _gtImg.at<cv::Vec3b>(iy, ix)[2]);
                 if (p->x > 6 && p->x < 50)   // 保留车辆前方6-50m的激光点，排除噪点
-                    cv::circle(img, cv::Point(newX, newY), 2, pColor, 1);
+                    cv::circle(img, cv::Point(newX, newY), 2, c, 1);
             }
         }
     }
@@ -222,23 +220,9 @@ void Gt2BGR(cv::Mat &img)
     for (int i = 0; i < img.rows; i ++) {
         for (int j = 0; j < img.cols; j ++) {
             int g = img.at<cv::Vec3b>(i, j)[0];
-            if (g == 1) {   // Passable
-                img.at<cv::Vec3b>(i, j)[0] = 0;
-                img.at<cv::Vec3b>(i, j)[1] = 255;
-                img.at<cv::Vec3b>(i, j)[2] = 0;
-            }
-            else
-            if (g == 2) {   // Unpassable
-                img.at<cv::Vec3b>(i, j)[0] = 0;
-                img.at<cv::Vec3b>(i, j)[1] = 0;
-                img.at<cv::Vec3b>(i, j)[2] = 255;
-            }
-            else
-            if (g == 3) {   // Unpassable
-                img.at<cv::Vec3b>(i, j)[0] = 255;
-                img.at<cv::Vec3b>(i, j)[1] = 0;
-                img.at<cv::Vec3b>(i, j)[2] = 0;
-            }
+            img.at<cv::Vec3b>(i, j)[0] = colorTable[g][0];
+            img.at<cv::Vec3b>(i, j)[1] = colorTable[g][1];
+            img.at<cv::Vec3b>(i, j)[2] = colorTable[g][2];
         }
     }
 }
@@ -247,20 +231,14 @@ void BGR2Gt(cv::Mat &img, cv::Mat gt)
 {
     for (int i = 0; i < img.rows; i ++) {
         for (int j = 0; j < img.cols; j ++) {
-            if (img.at<cv::Vec3b>(i, j)[1] == 255) {   // Passable
-                gt.at<uchar>(i, j) = 1;
+
+            for (int k = 0; k < colorTable.size(); k ++) {
+                if (ColorEqual(img.at<cv::Vec3b>(i, j), colorTable[k])) {
+                    gt.at<uchar>(i, j) = k;
+                    break;
+                }
             }
-            else
-            if (img.at<cv::Vec3b>(i, j)[2] == 255) {   // Unpassable
-                gt.at<uchar>(i, j) = 2;
-            }
-            else
-            if (img.at<cv::Vec3b>(i, j)[0] == 255) {   // Uncertain passable
-                gt.at<uchar>(i, j) = 3;
-            }
-            else {
-                gt.at<uchar>(i, j) = 0;
-            }
+
         }
     }
 }
