@@ -1,7 +1,11 @@
 #include <utils.h>
+#include <QCoreApplication>
+#include <QSettings>
+#include <QString>
+#include <QDebug>
 
-string CONFIG_FILE = "../DemLabelTool/config.txt";
-string FILE_LIST_PATH;
+string CONFIG_FILE = "../DemLabelTool/config.ini";
+string FILE_LIST;
 string ANNOTATION_PATH;
 string UNANNOTATED_PATH;
 
@@ -40,35 +44,25 @@ int     PEN_WIDTH       = 3;
 
 void LoadConfigFile()
 {
-    ifstream configFile(CONFIG_FILE);
-    string a, e, b;
-    configFile >> a >> e >> b;
-    if (a == "FILE_LIST_PATH") FILE_LIST_PATH = b;
-    configFile >> a >> e >> b;
-    if (a == "ANNOTATION_PATH") ANNOTATION_PATH = b;
-    if (ANNOTATION_PATH[ANNOTATION_PATH.length() - 1] != '/') ANNOTATION_PATH += '/';
-    configFile >> a >> e >> b;
-    if (a == "UNANNOTATED_PATH") UNANNOTATED_PATH = b;
-    if (UNANNOTATED_PATH[UNANNOTATED_PATH.length() - 1] != '/') UNANNOTATED_PATH += '/';
-    configFile >> a >> e >> b;
-    if (a == "CALIB_FILE") CALIB_FILE = b;
-    configFile >> a >> e >> b;
-    if (a == "DSV_FILE") DSV_FILE = b;
-    configFile >> a >> e >> b;
-    if (a == "AVI_FILE") AVI_FILE = b;
-    configFile >> a >> e >> b;
-    if (a == "CAM_CALIB_FILE") CAM_CALIB_FILE = b;
-    configFile >> a >> e >> b;
-    if (a == "START_TIME") START_TIME = atoi(b.c_str());
-    configFile >> a >> e >> b;
-    if (a == "END_TIME") END_TIME = atoi(b.c_str());
+    QSettings *configFile = new QSettings(QString(CONFIG_FILE.c_str()), QSettings::IniFormat);
+
+    ANNOTATION_PATH = configFile->value("Path/ANNOTATION_PATH").toString().toStdString();
+    UNANNOTATED_PATH = configFile->value("Path/UNANNOTATED_PATH").toString().toStdString();
+    FILE_LIST = configFile->value("Path/FILE_LIST").toString().toStdString();
+    CALIB_FILE = configFile->value("Path/CALIB_FILE").toString().toStdString();
+    DSV_FILE = configFile->value("Path/DSV_FILE").toString().toStdString();
+    AVI_FILE = configFile->value("Path/AVI_FILE").toString().toStdString();
+    CAM_CALIB_FILE = configFile->value("Path/CAM_CALIB_FILE").toString().toStdString();
+    START_TIME = atoi(configFile->value("Parameter/START_TIME").toString().toStdString().c_str());
+    END_TIME = atoi(configFile->value("Parameter/END_TIME").toString().toStdString().c_str());
+
     if (END_TIME == -1) END_TIME = 1E10;
 }
 
 void Init()
 {
     // Read file name list of dataset
-    fFileNameList = fopen(FILE_LIST_PATH.c_str(), "r");
+    fFileNameList = fopen(FILE_LIST.c_str(), "r");
     fileName.clear();
     char fName[20];
     while (fscanf(fFileNameList, "%s\n", fName) != EOF) {

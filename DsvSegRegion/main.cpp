@@ -193,7 +193,7 @@ void ProcessOneFrame ()
     PredictGloDem (gm,ggm);
 
 	//生成单帧数据的DEM
-	GenerateLocDem (dm);
+    GenerateLocDem (dm, gm);
 
     //用当前帧DEM更新全局DEM
     UpdateGloDem (gm,dm);
@@ -236,7 +236,7 @@ BOOL ReadOneDsvFrame ()
         for (int j=0; j<LINES_PER_BLK; j++) {
             for (int k=0; k<PNTS_PER_LINE; k++) {
                 point3fi *p = &onefrm->dsv[i].points[j*PNTS_PER_LINE+k];
-                double dis2Vehicle = sqrt(sqr(p->x)+sqr(p->y)+sqr(p->z));
+                double dis2Vehicle = sqrt(sqr(p->x)+sqr(p->y));
                 if (dis2Vehicle < 4.0) {    // m
                     p->i = 0;
                 }
@@ -591,12 +591,12 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);

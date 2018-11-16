@@ -1,9 +1,0 @@
-FILE_LIST_PATH = /home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation.txt
-ANNOTATION_PATH = /home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_annotated
-UNANNOTATED_PATH = /home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation
-CALIB_FILE = /media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/vel_hongling.calib
-DSV_FILE = /media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/hongling_round1_0.dsv
-AVI_FILE = /media/gaobiao/SeagateBackupPlusDrive/201/201-2018/data/guilin/hongling_Round1/0.avi
-CAM_CALIB_FILE = /home/gaobiao/Documents/RoadSegmentation_IV2019/src/DsvSegRegion/Sampledata-001-Camera.camera
-START_TIME = 54485061
-END_TIME = 54544299

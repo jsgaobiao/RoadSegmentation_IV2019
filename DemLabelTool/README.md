@@ -2,9 +2,9 @@
 
 1. 在Ubuntu系统下，使用QtCreator打开工程，并编译通过
 2. 将config.txt中的数据路径替换成本地的数据路径
-    * FILE_LIST_PATH: 待标注文件名列表
     * ANNOTATION_PATH:保存人工标注真值的路径（需要自己建立文件夹）
     * UNANNOTATED_PATH:待标注的文件路径
+    * FILE_LIST: 待标注文件名列表
     * CALIB_FILE:激光外参标定文件
     * DSV_FILE:激光+定位数据.dsv
     * AVI_FILE:视频文件.avi 需要在相同路径下包含同名的 .avi.ts文件

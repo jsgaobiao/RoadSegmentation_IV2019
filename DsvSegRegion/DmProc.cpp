@@ -387,11 +387,11 @@ void UpdateGloDem (DMAP &glo, DMAP &loc)
                     glo.lpr[gy*glo.wid+gx] = min (1.0, glo.lpr[gy*glo.wid+gx] * _fac);
                 }
                 else {
-                    fac = loc.lpr[dy*loc.wid+dx] / 2.0;
+                    fac = (1.2 - loc.lpr[dy*loc.wid+dx]) * 2.5;
                     // (暂时不加)可通行区域优先覆盖障碍物格点
-                    //if (loc.lab[dy*loc.wid+dx] == TRAVESABLE) {
-                    //    fac *= 2.0;
-                    //}
+//                    if (loc.lab[dy*loc.wid+dx] == TRAVESABLE) {
+//                        fac *= 2.0;
+//                    }
                     glo.lpr[gy*glo.wid+gx] = min (1.0, glo.lpr[gy*glo.wid+gx]*fac);
                     if (glo.lpr[gy*glo.wid+gx] < 0.2) {
                         glo.lab[gy*glo.wid+gx] = loc.lab[dy*loc.wid+dx];
@@ -427,7 +427,7 @@ void UpdateGloDem (DMAP &glo, DMAP &loc)
     }
 }
 
-void GenerateLocDem (DMAP &loc)
+void GenerateLocDem (DMAP &loc, DMAP &glo)
 {
     int x, y;
 
@@ -544,23 +544,24 @@ void GenerateLocDem (DMAP &loc)
             }
             else if (loc.demgnum[y*loc.wid+x] && loc.demhnum[y*loc.wid+x]) {
                 // 既有地面点，又有地上的点
-                double dd = loc.demhmin[y*loc.wid+x]-loc.demg[y*loc.wid+x];
-                if (dd > VEHICLEHEIGHT)	{			//larger than vehicle height
-                    //可通行，悬浮物
-                    loc.lab[y*loc.wid+x] = TRAVESABLE;
-                }
-                else {
-                    dd = loc.demhmax[y*loc.wid+x]-loc.demg[y*loc.wid+x];
-                    // 悬浮物最高处与地面的高度差
-                    if (dd < POSOBSMINHEIGHT) {
-                        //可通行区域：横在中间的树枝
-                        loc.lab[y*loc.wid+x] = TRAVESABLE;
-                    }
-                    else {
-                        //不可通行区域
-                        loc.lab[y*loc.wid+x] = NONTRAVESABLE;
-                    }
-                }
+//                double dd = loc.demhmin[y*loc.wid+x]-loc.demg[y*loc.wid+x];
+//                if (dd > VEHICLEHEIGHT)	{			//larger than vehicle height
+//                    //可通行，悬浮物
+//                    loc.lab[y*loc.wid+x] = TRAVESABLE;
+//                }
+//                else {
+//                    dd = loc.demhmax[y*loc.wid+x]-loc.demg[y*loc.wid+x];
+//                    // 悬浮物最高处与地面的高度差
+//                    if (dd < POSOBSMINHEIGHT) {
+//                        //可通行区域：横在中间的树枝
+//                        loc.lab[y*loc.wid+x] = TRAVESABLE;
+//                    }
+//                    else {
+//                        //不可通行区域
+//                        loc.lab[y*loc.wid+x] = NONTRAVESABLE;
+//                    }
+//                }
+                loc.lab[y*loc.wid+x] = TRAVESABLE;
             }
         }
     }

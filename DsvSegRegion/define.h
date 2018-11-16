@@ -272,7 +272,7 @@ void InitDmap (DMAP *dm);
 void ReleaseDmap (DMAP *dm);
 void PredictGloDem (DMAP &gmtar, DMAP &gmtmp);
 void UpdateGloDem (DMAP &glo, DMAP &loc);
-void GenerateLocDem (DMAP &loc);
+void GenerateLocDem (DMAP &loc, DMAP &glo);
 void CallbackLocDem(int event, int x, int y, int flags, void *ustc);
 void LabelRoadSurface (DMAP &glo);
 void LabelObstacle (DMAP &glo);
