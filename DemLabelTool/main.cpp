@@ -374,6 +374,10 @@ int main(int argc, char* argv[]) {
             if (preFrameDsv.millisec != 0) {
                 // transform the previous human annotation into the coordination of the newest position
                 TransAnnotation(annotatedImg);
+                if (!undoList.empty())
+                    undoList[0] = annotatedImg.clone();
+                for (int z = 1; z < undoList.size(); z ++)
+                    TransAnnotation(undoList[z]);
             }
         } else {
             newGtImg = readImg.clone();
@@ -381,6 +385,10 @@ int main(int argc, char* argv[]) {
             if (preFrameDsv.millisec != 0) {
                 // transform the previous human annotation into the coordination of the newest position
                 TransAnnotation(annotatedImg);
+                if (!undoList.empty())
+                    undoList[0] = annotatedImg.clone();
+                for (int z = 1; z < undoList.size(); z ++)
+                    TransAnnotation(undoList[z]);
             }
         }
         if (annotatedImg.empty()) {
