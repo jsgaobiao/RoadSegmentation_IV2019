@@ -422,6 +422,7 @@ int main(int argc, char* argv[]) {
             continue;
         } else
         if (WaitKey == 'd') {     // Forword
+            SaveNewGT(idx);
             continue;
         } else
         if (WaitKey == 'r') {       // Reset human annotation
