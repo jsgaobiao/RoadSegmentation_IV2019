@@ -6,4 +6,4 @@ build*/
 *.out
 *.log
 *.result
-
+*.ini

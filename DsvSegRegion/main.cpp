@@ -591,12 +591,12 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_gt.png", gtMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);

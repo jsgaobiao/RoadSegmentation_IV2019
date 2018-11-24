@@ -122,6 +122,7 @@ void Init() {
     cv::namedWindow("input");
     cv::namedWindow("video & point cloud");
     cv::namedWindow("newGT");
+    cv::namedWindow("Baseline");
     cv::namedWindow("annotation");
     cv::namedWindow("human annotation");
     cv::namedWindow("video");
@@ -130,7 +131,8 @@ void Init() {
     cv::moveWindow("video & point cloud", 1340, 400);
     cv::moveWindow("video", 1340, 20);
     cv::moveWindow("newGT", 20, 680);
-    cv::moveWindow("human annotation", 400, 680);
+    cv::moveWindow("human annotation", 390, 680);
+    cv::moveWindow("Baseline", 700, 680);
 }
 
 void ReadDsv(int ts) {
@@ -409,6 +411,9 @@ int main(int argc, char* argv[]) {
         pointCloudsProject(tmpImg, newGtImg, inputImg);
         cv::imshow("newGT", newGtImg);
         cv::imshow("video & point cloud", tmpImg);
+        tmpImg = originGtImg.clone();
+        Gt2BGR(tmpImg);
+        cv::imshow("Baseline", tmpImg);
 
         cv::setMouseCallback("annotation", CallbackAnnotation);
         cv::setMouseCallback("input", CallbackInput);
@@ -430,7 +435,7 @@ int main(int argc, char* argv[]) {
             continue;
         } else
         if (WaitKey == 'd') {     // Forword
-            SaveNewGT(idx);
+//            SaveNewGT(idx);
             continue;
         } else
         if (WaitKey == 'r') {       // Reset human annotation

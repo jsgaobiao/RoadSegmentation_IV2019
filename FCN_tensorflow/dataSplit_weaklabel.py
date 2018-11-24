@@ -7,8 +7,8 @@ from sklearn.cross_validation import train_test_split
 import os
 import shutil
 
-PATH                = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_guilin/'       # end with '/'
-IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/guilin_for_annotation/'     # end with '/'
+PATH                = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_guilin_1121/'       # end with '/'
+IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/images/'     # end with '/'
 TRAIN_FILE          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/train.txt'
 TEST_FILE           = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test.txt'
 TEST_FILE_WITH_GT   = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test_gt.txt'
@@ -21,12 +21,15 @@ f_test_gt = open(TEST_FILE_WITH_GT, 'w')
 data = []
 label = []
 wlabel = []
+baselabel = []
 video = []
 listName = os.listdir(IMAGE_PATH)
 
 for fileName in listName:
     if fileName[-7:-4] == 'img':    # input image
         data.append(fileName)
+    elif fileName[-10:-4] == 'basegt':   # baseline ground truth
+        baselabel.append(fileName)
     elif fileName[-7:-4] == 'wgt':   # weak ground truth
         wlabel.append(fileName)
     elif fileName[-6:-4] == 'gt':   # ground truth
@@ -38,6 +41,7 @@ data.sort()
 label.sort()
 wlabel.sort()
 video.sort()
+baselabel.sort()
 
 p = int(len(data) * 0.6)
 pp = int(len(data) * 0.75)
@@ -53,6 +57,10 @@ WY_train = wlabel[0:p]
 WY_val = wlabel[p:pp]
 WY_test = wlabel[pp:]
 
+BY_train = baselabel[0:p]
+BY_val = baselabel[p:pp]
+BY_test = baselabel[pp:]
+
 V_train = video[0:p]
 V_val = video[p:pp]
 V_test = video[pp:]
@@ -63,23 +71,29 @@ V_test = video[pp:]
 os.mkdir(PATH + 'train')
 os.mkdir(PATH + 'train_gt')
 os.mkdir(PATH + 'train_wgt')
+os.mkdir(PATH + 'train_bgt')
 os.mkdir(PATH + 'test')
 os.mkdir(PATH + 'test_gt')
 os.mkdir(PATH + 'test_wgt')
+os.mkdir(PATH + 'test_bgt')
 os.mkdir(PATH + 'val')
 os.mkdir(PATH + 'val_gt')
 os.mkdir(PATH + 'val_wgt')
+os.mkdir(PATH + 'val_bgt')
 os.mkdir(PATH + 'video')
+
 for i in range(len(X_train)):
     shutil.copy(IMAGE_PATH + X_train[i], PATH + 'train/' + X_train[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + Y_train[i], PATH + 'train_gt/' + Y_train[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_train[i], PATH + 'train_wgt/' + WY_train[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + BY_train[i], PATH + 'train_bgt/' + BY_train[i][0:-11] + '.png')
     shutil.copy(IMAGE_PATH + V_train[i], PATH + 'video/' + V_train[i][0:-10] + '.png')
     f_train.write(PATH + 'train/' + X_train[i][0:-8] + '.png' + ' ' + PATH + 'train_gt/' + Y_train[i][0:-7] + '.png' + ' ' + PATH + 'train_wgt/' + WY_train[i][0:-8] + '.png\n')
 for i in range(len(X_test)):
     shutil.copy(IMAGE_PATH + X_test[i], PATH + 'test/' + X_test[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + Y_test[i], PATH + 'test_gt/' + Y_test[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_test[i], PATH + 'test_wgt/' + WY_test[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + BY_test[i], PATH + 'test_bgt/' + BY_test[i][0:-11] + '.png')
     shutil.copy(IMAGE_PATH + V_test[i], PATH + 'video/' + V_test[i][0:-10] + '.png')
     f_test_gt.write(PATH + 'test/' + X_test[i][0:-8] + '.png' + ' ' + PATH + 'test_gt/' + Y_test[i][0:-7] + '.png' + ' ' + PATH + 'test_wgt/' + WY_test[i][0:-8] + '.png\n')
     f_test.write(PATH + 'test/' + X_test[i][0:-8] + '.png' + '\n')
@@ -87,6 +101,7 @@ for i in range(len(X_val)):
     shutil.copy(IMAGE_PATH + X_val[i], PATH + 'val/' + X_val[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + Y_val[i], PATH + 'val_gt/' + Y_val[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_val[i], PATH + 'val_wgt/' + WY_val[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + BY_val[i], PATH + 'val_bgt/' + BY_val[i][0:-11] + '.png')
     shutil.copy(IMAGE_PATH + V_val[i], PATH + 'video/' + V_val[i][0:-10] + '.png')
     f_val.write(PATH + 'val/' + X_val[i][0:-8] + '.png' + ' ' + PATH + 'val_gt/' + Y_val[i][0:-7] + '.png' + ' ' + PATH + 'val_wgt/' + WY_val[i][0:-8] + '.png\n')
 
