@@ -3,15 +3,19 @@
 #include <QSettings>
 #include <QString>
 #include <QDebug>
+#include <cstdlib>
 
 string CONFIG_FILE = "../DemLabelTool/config.ini";
 string FILE_LIST;
 string ANNOTATION_PATH;
 string UNANNOTATED_PATH;
+string GLOBAL_GT_FILE;
+bool GLOBAL_GT;
 
 string CALIB_FILE;
 string DSV_FILE;
 string AVI_FILE;
+string NAV_FILE;
 string CAM_CALIB_FILE;
 
 long long START_TIME = 0;
@@ -24,13 +28,14 @@ bool camCalibFlag = true;
 TRANSINFO calibInfo;
 int dsbytesiz = sizeof (point3d) * 2 + sizeof (ONEVDNDATA);
 ONEDSVFRAME     *onefrm;
+ONEDSVDATA preFrameDsv;
+
 int dFrmNum;
 int dFrmNo;
 int startFrmNo = -1;
 int waitkeydelay = 0;
-ONEDSVDATA preFrameDsv;
 
-vector<string> fileName;
+vector<QString> fileName;
 vector<cv::Scalar> colorTable;
 vector<cv::Mat> undoList;
 cv::Mat videoImg;
@@ -44,6 +49,8 @@ cv::Mat annotatedImg;           // annotated layer (Gray)
 double SCALE_RATIO     = 2.0;
 int ACTIVE_LABEL    = 0;               // annotation label class
 int PEN_WIDTH       = 3;
+
+_DMAP dm;
 
 void LoadConfigFile()
 {
@@ -63,8 +70,11 @@ void LoadConfigFile()
     DSV_FILE = configFile->value("Path/DSV_FILE").toString().toStdString();
     AVI_FILE = configFile->value("Path/AVI_FILE").toString().toStdString();
     CAM_CALIB_FILE = configFile->value("Path/CAM_CALIB_FILE").toString().toStdString();
+    NAV_FILE = configFile->value("Path/NAV_FILE").toString().toStdString();
+    GLOBAL_GT_FILE = configFile->value("Path/GLOBAL_GT_FILE").toString().toStdString();
     START_TIME = atoi(configFile->value("Parameter/START_TIME").toString().toStdString().c_str());
     END_TIME = atoi(configFile->value("Parameter/END_TIME").toString().toStdString().c_str());
+    GLOBAL_GT = atoi(configFile->value("Parameter/GLOBAL_GT").toString().toStdString().c_str());
     if (END_TIME == -1) END_TIME = 1E10;
 
     // Get label table
@@ -112,6 +122,15 @@ void Init() {
     if (!LoadCameraCalib(CAM_CALIB_FILE.c_str())) {
         printf("Open Camera Calibration files fails.\n");
         camCalibFlag = false;
+    }
+    // Global GT file
+    if (GLOBAL_GT) {
+        dm.lmap = cv::imread(GLOBAL_GT_FILE, cv::IMREAD_COLOR);
+        if (!LoadNavFile (NAV_FILE, dm)) {
+            printf ("Invalid nav file.\n");
+            getchar ();
+            exit (1);
+        }
     }
     LONGLONG fileSize = myGetFileSize(dfp);
     dFrmNum = fileSize / (BKNUM_PER_FRM) / dsbytesiz;
@@ -273,15 +292,62 @@ void CallbackInput(int event, int x, int y, int flags, void *param) {
         cv::imshow("input", tmpImg);
     }
 }
+
+// Set gt image to global gt
+void SetGtImg(_DMAP &m, cv::Mat &gtImg)
+{
+    MATRIX	rot;
+    cv::Mat tmpImg;
+    point3d	shv = onefrm->dsv[0].shv;
+    double gz = shv.z-calibInfo.shv.z;
+    tmpImg = gtImg.clone();
+    cv::transpose(tmpImg, tmpImg);
+    cv::flip(tmpImg, tmpImg, 1);
+
+    createRotMatrix_ZYX(rot, 0, 0, onefrm->dsv[0].ang.z) ;
+
+    for (int i = 0; i < tmpImg.rows; i ++) {
+        for (int j = 0; j < tmpImg.cols; j ++) {
+            point3fi p;
+            p.x = (double)(i - tmpImg.rows/2.0) * PIXSIZ;
+            p.y = (double)(j - tmpImg.cols/2.0) * PIXSIZ;
+            rotatePoint3fi(p, rot);
+            shiftPoint3fi(p, shv);
+
+            int ix, iy;   // (ix, iy) in m
+            ix = nint((p.x-m.x0)/PIXSIZ);
+            iy = nint((p.y-m.y0)/PIXSIZ);
+            iy = m.lmap.rows - iy - 1;
+            for (int y = iy; y <= iy+1; y ++) {
+                for (int x = ix; x <= ix+1; x ++) {
+                    if (y<0 || y>=m.lmap.rows) continue;
+                    if (x<0 || x>=m.lmap.cols) continue;
+
+                    m.lmap.at<cv::Vec3b>(y, x)[0] = tmpImg.at<cv::Vec3b>(i, j)[0];
+                    m.lmap.at<cv::Vec3b>(y, x)[1] = tmpImg.at<cv::Vec3b>(i, j)[1];
+                    m.lmap.at<cv::Vec3b>(y, x)[2] = tmpImg.at<cv::Vec3b>(i, j)[2];
+                }
+            }
+        }
+    }
+}
+
 // Save new ground truth
 void SaveNewGT(int idx) {
-    cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
-    writtenGtImg.setTo(0);
-    BGR2Gt(newGtImg, writtenGtImg);
-    if (cv::imwrite((ANNOTATION_PATH + fileName[idx] + "_gt.png").c_str(), writtenGtImg)) {
-        printf("%s_gt.png saved!\n", fileName[idx].c_str());
-    } else {
-        printf("save error!\n");
+    if (GLOBAL_GT) {
+        SetGtImg(dm, newGtImg);
+        cv::imwrite(GLOBAL_GT_FILE + ".new.png" , dm.lmap);
+        printf("%s gt saved!\n", fileName[idx].toStdString().c_str());
+    }
+    else {
+        cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
+        writtenGtImg.setTo(0);
+        BGR2Gt(newGtImg, writtenGtImg);
+        if (cv::imwrite((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str(), writtenGtImg)) {
+            printf("%s_gt.png saved!\n", fileName[idx].toStdString().c_str());
+        } else {
+            printf("save error!\n");
+        }
     }
 }
 
@@ -331,10 +397,49 @@ int FindStartFrame(int ts)
         if (tmpTs == ts) break;
         ret++;
     }
+    fseeko64(dfp, 0, SEEK_SET);
     return ret;
 }
 
+// Get gt image from global gt
+void GetGtImg(_DMAP &m, cv::Mat &gtImg)
+{
+    MATRIX	rot;
+    point3d	shv = onefrm->dsv[0].shv;
+    double gz = shv.z-calibInfo.shv.z;
+
+    createRotMatrix_ZYX(rot, 0, 0, onefrm->dsv[0].ang.z) ;
+
+    gtImg = cv::Mat(WIDSIZ/PIXSIZ, LENSIZ/PIXSIZ, CV_8UC3);
+    gtImg.setTo(0);
+
+    for (int i = 0; i < gtImg.rows; i ++) {
+        for (int j = 0; j < gtImg.cols; j ++) {
+            point3fi p;
+            p.x = (double)(i - gtImg.rows/2.0) * PIXSIZ;
+            p.y = (double)(j - gtImg.cols/2.0) * PIXSIZ;
+            rotatePoint3fi(p, rot);
+            shiftPoint3fi(p, shv);
+
+            int ix, iy;   // (ix, iy) in m
+            ix = nint((p.x-m.x0)/PIXSIZ);
+            iy = nint((p.y-m.y0)/PIXSIZ);
+            if (iy<0 || iy>=m.lmap.rows) continue;
+            if (ix<0 || ix>=m.lmap.cols) continue;
+
+            int val = BGR2Gt(m.lmap.at<cv::Vec3b>(m.lmap.rows - iy - 1, ix));
+            if (val < 0) fprintf(stderr, "Color Error!\n");
+            gtImg.at<cv::Vec3b>(i, j)[0] = val;
+            gtImg.at<cv::Vec3b>(i, j)[1] = val;
+            gtImg.at<cv::Vec3b>(i, j)[2] = val;
+        }
+    }
+    cv::flip(gtImg, gtImg, 1);
+    cv::transpose(gtImg, gtImg);
+}
+
 int main(int argc, char* argv[]) {
+    system("ulimit -s 16384");
     if (argc > 1) {
         CONFIG_FILE = argv[1];
     }
@@ -344,13 +449,14 @@ int main(int argc, char* argv[]) {
     startFrmNo = FindStartFrame(START_TIME);
 
     for (int idx = 0; idx < fileName.size(); idx++) {
-        if (atoi(fileName[idx].c_str()) < START_TIME) continue;
-        if (atoi(fileName[idx].c_str()) > END_TIME) break;
-        if (atoi(fileName[idx].c_str()) == START_TIME) {
+        int ts = fileName[idx].toInt();
+        if (ts < START_TIME) continue;
+        if (ts > END_TIME) break;
+        if (ts == START_TIME) {
             dFrmNo = startFrmNo;
             int err = fseeko64(dfp, (LONGLONG)dFrmNo * dsbytesiz * BKNUM_PER_FRM, SEEK_SET);
         }
-        if (atoi(fileName[idx].c_str()) > END_TIME) {
+        if (atoi(fileName[idx].toStdString().c_str()) > END_TIME) {
             printf(RED "End of DSV file. (Timestamp : %lld)\n" NONE, END_TIME);
             printf("Press [any key] to exit.\n");
             getchar();
@@ -358,33 +464,37 @@ int main(int argc, char* argv[]) {
         }
 
         // Read DSV data
-        ReadDsv(atoi(fileName[idx].c_str()));
-        printf("no.%d, time: %s\n", dFrmNo, fileName[idx].c_str());
+        ReadDsv(ts);
+        printf("no.%d, time: %s\n", dFrmNo, fileName[idx].toStdString().c_str());
 
         // Read image data
-        inputImg = cv::imread(UNANNOTATED_PATH + fileName[idx] + "_img.png", cv::IMREAD_COLOR);
-        originGtImg = cv::imread(UNANNOTATED_PATH + fileName[idx] + "_gt.png", cv::IMREAD_COLOR);
-        videoImg = cv::imread(UNANNOTATED_PATH + fileName[idx] + "_video.png", cv::IMREAD_COLOR);
+        inputImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_img.png", cv::IMREAD_COLOR);
+        videoImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_video.png", cv::IMREAD_COLOR);
         inputImgForVis = inputImg.clone();
 
         // Read human annotated ground truth
         cv::Mat readImg;
-        readImg = cv::imread(ANNOTATION_PATH + fileName[idx] + "_gt.png");
-        if (readImg.empty()) {
-            newGtImg = originGtImg.clone();
-            Gt2BGR(newGtImg);
-            if (preFrameDsv.millisec != 0) {
-                // transform the previous human annotation into the coordination of the newest position
-                TransAnnotation(annotatedImg);
-                if (!undoList.empty())
-                    undoList[0] = annotatedImg.clone();
-                for (int z = 1; z < undoList.size(); z ++)
-                    TransAnnotation(undoList[z]);
-            }
-        } else {
+
+        if (GLOBAL_GT) {
+            GetGtImg(dm, originGtImg);
+            readImg = originGtImg.clone();
             newGtImg = readImg.clone();
             Gt2BGR(newGtImg);
-            if (preFrameDsv.millisec != 0) {
+            // if change frame id, then empty the annotatedImg
+            if (preFrameDsv.millisec != 0 && preFrameDsv.millisec != onefrm->dsv[0].millisec) {
+                annotatedImg = cv::Mat(inputImg.rows, inputImg.cols, CV_8UC1);
+                annotatedImg.setTo(255);
+                undoList.clear();
+                undoList.push_back(annotatedImg.clone());
+            }
+        }
+        else {
+            originGtImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_gt.png", cv::IMREAD_COLOR);
+            readImg = cv::imread(ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png");
+            if (readImg.empty()) newGtImg = originGtImg.clone();
+                            else newGtImg = readImg.clone();
+            Gt2BGR(newGtImg);
+            if (preFrameDsv.millisec != 0) {    // not the 1st frame
                 // transform the previous human annotation into the coordination of the newest position
                 TransAnnotation(annotatedImg);
                 if (!undoList.empty())
@@ -393,6 +503,7 @@ int main(int argc, char* argv[]) {
                     TransAnnotation(undoList[z]);
             }
         }
+
         if (annotatedImg.empty()) {
             annotatedImg = cv::Mat(inputImg.rows, inputImg.cols, CV_8UC1);
             annotatedImg.setTo(255);
@@ -440,9 +551,14 @@ int main(int argc, char* argv[]) {
         } else
         if (WaitKey == 'r') {       // Reset human annotation
             annotatedImg.setTo(255);
-            std::remove((ANNOTATION_PATH + fileName[idx] + "_gt.png").c_str());
             undoList.clear();
             undoList.push_back(annotatedImg.clone());
+            if (GLOBAL_GT) {
+//                SetGtImg(bm, originGtImg);
+            }
+            else {
+                std::remove((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str());
+            }
             idx--;
         } else
         if (WaitKey >= '0' && WaitKey <= '9') {  // change active label class

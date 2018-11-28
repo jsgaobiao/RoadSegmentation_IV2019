@@ -13,6 +13,8 @@ using namespace cv;
 
 #define RED "\e[1;31m"
 #define NONE "\e[0m"
+#define	INVALIDDOUBLE		99999999.9
+#define	MAXVALDIS	50.0
 
 #define BOUND(x,min,max) ((x) < (min) ? (min) : ((x) > (max) ? (max) : (x)))
 #define	nint(x)			(int)((x>0)?(x+0.5):(x-0.5))
@@ -97,6 +99,12 @@ typedef struct {
     ONEDSVDATA		dsv[BKNUM_PER_FRM];
 } ONEDSVFRAME;
 
+typedef struct {
+    double			x0;
+    double			y0;
+    cv::Mat         lmap;
+} _DMAP;
+
 extern FILE *dfp;
 extern FILE* fFileNameList;
 extern std::vector<NAVDATA> nav;
@@ -119,6 +127,8 @@ void pointCloudsProject(cv::Mat &img, cv::Mat gm, cv::Mat zmap);
 point3fi CorrectPoints (point3fi p, ONEDSVDATA dsv);
 void TransAnnotation(cv::Mat &srcImg);
 bool ColorEqual(cv::Vec3b a, cv::Scalar b);
+bool LoadNavFile (string filename, _DMAP &dm);
+int BGR2Gt(cv::Vec3b pix);
 
 // Calculation.cpp
 void rMatrixInit (MATRIX &rt);

@@ -1,5 +1,44 @@
 #include "utils.h"
 
+bool LoadNavFile (string filename, _DMAP &dm)
+{
+    point2d     minpt;
+    point2d     maxpt;
+    FILE		*fp;
+    char		i_line[300], *str;
+    int			i;
+
+    fp = fopen (filename.c_str(), "r");
+    if (!fp) {
+        fprintf (stderr, "Open data failure : %s", filename);
+        return (false);
+    }
+    minpt.x = minpt.y = INVALIDDOUBLE;
+    maxpt.x = maxpt.y = -INVALIDDOUBLE;
+
+    while (1) {
+        if (fgets (i_line, 300, fp) == NULL) {
+            break;
+        }
+        if (strlen(i_line)<3)
+            continue;
+        if (!(i_line[0]>='0'&&i_line[0]<='9'))
+            continue;
+        strtok (i_line, " ,\t\n");					//milli
+        strtok (NULL, " ,\t\n");					//angx
+        strtok (NULL, " ,\t\n");					//angy
+        strtok (NULL, " ,\t\n");					//angz
+        double x = atof (strtok (NULL, " ,\t\n"));	//x
+        minpt.x = min (x, minpt.x); maxpt.x = max (x, maxpt.x);
+        double y = atof (strtok (NULL, " ,\t\n"));	//y
+        minpt.y = min (y, minpt.y); maxpt.y = max (y, maxpt.y);
+    }
+    fclose (fp);
+    dm.x0 = minpt.x - MAXVALDIS;
+    dm.y0 = minpt.y - MAXVALDIS;
+    return true;
+}
+
 // transform the previous human annotation into the coordination of the newest position
 void TransAnnotation(cv::Mat &srcImg)
 {
@@ -227,6 +266,15 @@ void Gt2BGR(cv::Mat &img)
     }
 }
 
+int BGR2Gt(cv::Vec3b pix) {
+    for (int k = 0; k < colorTable.size(); k ++) {
+        if (ColorEqual(pix, colorTable[k])) {
+            return k;
+        }
+    }
+    return -1;
+}
+
 void BGR2Gt(cv::Mat &img, cv::Mat gt)
 {
     for (int i = 0; i < img.rows; i ++) {
@@ -242,3 +290,54 @@ void BGR2Gt(cv::Mat &img, cv::Mat gt)
         }
     }
 }
+// Get gt image from global gt
+//void GetGtImg(_DMAP &m, cv::Mat &gtImg)
+//{
+//    MATRIX	rot;
+//    point3d	shv = onefrm->dsv[0].shv;
+//    double gz = shv.z-calibInfo.shv.z;
+
+//    createRotMatrix_ZYX(rot, 0, 0, onefrm->dsv[0].ang.z) ;
+
+//    gtImg = cv::Mat(WIDSIZ/PIXSIZ, LENSIZ/PIXSIZ, CV_8UC3);
+//    gtImg.setTo(0);
+
+//    for (int i=0; i<BKNUM_PER_FRM; i++) {
+//        for (int j=0; j<LINES_PER_BLK; j++) {
+//            for (int k=0; k<PNTS_PER_LINE; k++) {
+//                point3fi *tp = &onefrm->dsv[i].points[j*PNTS_PER_LINE+k];
+//                if (!tp->i) continue;
+//                point3fi p = CorrectPoints (*tp, onefrm->dsv[i]);
+
+//                point3fi localP = p;
+//                rotatePoint3fi(p, rot);
+//                shiftPoint3fi(p, shv);
+//                if (fabs(p.x - 32.9233665) < 1e-4) {
+//                    int gb = 1;
+//                }
+
+//                int ix, iy;   // (ix, iy) in m
+//                ix = nint((p.x-m.x0)/PIXSIZ);
+//                iy = nint((p.y-m.y0)/PIXSIZ);
+//                if (iy<0 || iy>=m.lmap.rows) continue;
+//                if (ix<0 || ix>=m.lmap.cols) continue;
+
+//                int localX, localY; // (localX, localY) in gtImg
+//                localX = int(nint(localP.x/PIXSIZ)+gtImg.rows/2.0);
+//                localY = int(nint(localP.y/PIXSIZ)+gtImg.cols/2.0);
+//                if(localX >= 0 && localY >= 0 && localX < gtImg.rows && localY < gtImg.cols) {
+//                    int val = BGR2Gt(m.lmap.at<cv::Vec3b>(m.lmap.rows - iy - 1, ix));
+//                    if (val < 0) printf("Color Error!\n");
+//                    if (val > 0) {
+//                        int gb = 1;
+//                    }
+//                    gtImg.at<cv::Vec3b>(localX, localY)[0] = val;
+//                    gtImg.at<cv::Vec3b>(localX, localY)[1] = val;
+//                    gtImg.at<cv::Vec3b>(localX, localY)[2] = val;
+//                }
+//            }
+//        }
+//    }
+//    cv::flip(gtImg, gtImg, 1);
+//    cv::transpose(gtImg, gtImg);
+//}
