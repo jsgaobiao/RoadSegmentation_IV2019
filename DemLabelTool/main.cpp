@@ -7,8 +7,8 @@
 
 string CONFIG_FILE = "../DemLabelTool/config.ini";
 string FILE_LIST;
-string ANNOTATION_PATH;
-string UNANNOTATED_PATH;
+string DATA_PATH;
+string PRED_PATH;
 string GLOBAL_GT_FILE;
 bool GLOBAL_GT;
 
@@ -57,13 +57,13 @@ void LoadConfigFile()
     QSettings *configFile = new QSettings(QString(CONFIG_FILE.c_str()), QSettings::IniFormat);
 
     // Read data path
-    ANNOTATION_PATH = configFile->value("Path/ANNOTATION_PATH").toString().toStdString();
-    if (ANNOTATION_PATH[ANNOTATION_PATH.length() - 1] != '/') {
-        ANNOTATION_PATH += '/';
+    DATA_PATH = configFile->value("Path/DATA_PATH").toString().toStdString();
+    if (DATA_PATH[DATA_PATH.length() - 1] != '/') {
+        DATA_PATH += '/';
     }
-    UNANNOTATED_PATH = configFile->value("Path/UNANNOTATED_PATH").toString().toStdString();
-    if (UNANNOTATED_PATH[UNANNOTATED_PATH.length() - 1] != '/') {
-        UNANNOTATED_PATH += '/';
+    PRED_PATH = configFile->value("Path/PRED_PATH").toString().toStdString();
+    if (PRED_PATH[PRED_PATH.length() - 1] != '/') {
+        PRED_PATH += '/';
     }
     FILE_LIST = configFile->value("Path/FILE_LIST").toString().toStdString();
     CALIB_FILE = configFile->value("Path/CALIB_FILE").toString().toStdString();
@@ -341,7 +341,7 @@ void SaveNewGT(int idx, bool saveGlobalImg) {
     cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
     writtenGtImg.setTo(0);
     BGR2Gt(newGtImg, writtenGtImg);
-    if (cv::imwrite((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str(), writtenGtImg)) {
+    if (cv::imwrite((DATA_PATH + fileName[idx].toStdString() + "_gt.png").c_str(), writtenGtImg)) {
         printf("%s_gt.png saved!\n", fileName[idx].toStdString().c_str());
     } else {
         printf("save error!\n");
@@ -363,7 +363,7 @@ void CheckTimestampRange() {
     }
     if (START_TIME < startTs) {
         printf(RED "[Warning] START_TIME (%lld) is out of DSV time range, please check DSV file path.\n\n" NONE, START_TIME);
-        printf("Press [any key] toANNOTATION_PATH continue\n");
+        printf("Press [any key] toDATA_PATH continue\n");
         getchar();
         START_TIME = startTs;
     }
@@ -465,8 +465,8 @@ int main(int argc, char* argv[]) {
         printf("no.%d, time: %s\n", dFrmNo, fileName[idx].toStdString().c_str());
 
         // Read image data
-        inputImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_img.png", cv::IMREAD_COLOR);
-        videoImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_video.png", cv::IMREAD_COLOR);
+        inputImg = cv::imread(PRED_PATH + fileName[idx].toStdString() + "_img.png", cv::IMREAD_COLOR);
+        videoImg = cv::imread(PRED_PATH + fileName[idx].toStdString() + "_video.png", cv::IMREAD_COLOR);
         inputImgForVis = inputImg.clone();
 
         // Read human annotated ground truth
@@ -486,8 +486,8 @@ int main(int argc, char* argv[]) {
             }
         }
         else {
-            originGtImg = cv::imread(UNANNOTATED_PATH + fileName[idx].toStdString() + "_gt.png", cv::IMREAD_COLOR);
-            readImg = cv::imread(ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png");
+            originGtImg = cv::imread(PRED_PATH + fileName[idx].toStdString() + "_gt.png", cv::IMREAD_COLOR);
+            readImg = cv::imread(DATA_PATH + fileName[idx].toStdString() + "_gt.png");
             if (readImg.empty()) newGtImg = originGtImg.clone();
                             else newGtImg = readImg.clone();
             Gt2BGR(newGtImg);
@@ -555,7 +555,7 @@ int main(int argc, char* argv[]) {
 //                SetGtImg(bm, originGtImg);
             }
             else {
-                std::remove((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str());
+                std::remove((DATA_PATH + fileName[idx].toStdString() + "_gt.png").c_str());
             }
             idx--;
         } else

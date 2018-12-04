@@ -198,7 +198,7 @@ for i in range(len(imgList)):
     cntTableBaseline += table
     # none = LabelColor(img, wgt, gtClone1)
 
-    colorizedImg = cv2.applyColorMap(costMap, cv2.COLORMAP_HSV)
+    colorizedImg = cv2.applyColorMap(costMap, cv2.COLORMAP_HOT)
     videoImg = cv2.resize(videoImg, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
     # mergeImg0 = np.concatenate((img, wgt, pre), axis=1)
     # mergeImg1 = np.concatenate((videoImg, bgt, gt), axis=1)
