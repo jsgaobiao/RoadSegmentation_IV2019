@@ -7,18 +7,20 @@ from sklearn.cross_validation import train_test_split
 import os
 import shutil
 
-PATH                = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_guilin_1121/'       # end with '/'
-IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/images/'     # end with '/'
+PATH                = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'       # end with '/'
+IMAGE_PATH          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/images_easy/'     # end with '/'
 TRAIN_FILE          = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/train.txt'
 TEST_FILE           = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test.txt'
 TEST_FILE_WITH_GT   = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/test_gt.txt'
 VAL_FILE            = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/val.txt'
+
 f_train = open(TRAIN_FILE, 'w')
 f_test = open(TEST_FILE, 'w')
 f_val = open(VAL_FILE, 'w')
 f_test_gt = open(TEST_FILE_WITH_GT, 'w')
 
 data = []
+sdata = []
 label = []
 wlabel = []
 baselabel = []
@@ -26,7 +28,9 @@ video = []
 listName = os.listdir(IMAGE_PATH)
 
 for fileName in listName:
-    if fileName[-7:-4] == 'img':    # input image
+    if fileName[-8:-4] == 'simg':   # single frame image
+        sdata.append(fileName)
+    elif fileName[-7:-4] == 'img':    # input image
         data.append(fileName)
     elif fileName[-10:-4] == 'basegt':   # baseline ground truth
         baselabel.append(fileName)
@@ -37,6 +41,7 @@ for fileName in listName:
     elif fileName[-9:-4] == 'video':   # ground truth
         video.append(fileName)
 
+sdata.sort()
 data.sort()
 label.sort()
 wlabel.sort()
@@ -45,9 +50,14 @@ baselabel.sort()
 
 p = int(len(data) * 0.6)
 pp = int(len(data) * 0.75)
+
 X_train = data[0:p]
 X_val = data[p:pp]
 X_test = data[pp:]
+
+SX_train = sdata[0:p]
+SX_val = sdata[p:pp]
+SX_test = sdata[pp:]
 
 Y_train = label[0:p]
 Y_val = label[p:pp]
@@ -69,14 +79,17 @@ V_test = video[pp:]
 # X_train, X_val, Y_train, Y_val = train_test_split(X_trainval, Y_trainval, test_size=0.2)
 
 os.mkdir(PATH + 'train')
+os.mkdir(PATH + 'train_simg')
 os.mkdir(PATH + 'train_gt')
 os.mkdir(PATH + 'train_wgt')
 os.mkdir(PATH + 'train_bgt')
 os.mkdir(PATH + 'test')
+os.mkdir(PATH + 'test_simg')
 os.mkdir(PATH + 'test_gt')
 os.mkdir(PATH + 'test_wgt')
 os.mkdir(PATH + 'test_bgt')
 os.mkdir(PATH + 'val')
+os.mkdir(PATH + 'val_simg')
 os.mkdir(PATH + 'val_gt')
 os.mkdir(PATH + 'val_wgt')
 os.mkdir(PATH + 'val_bgt')
@@ -84,6 +97,7 @@ os.mkdir(PATH + 'video')
 
 for i in range(len(X_train)):
     shutil.copy(IMAGE_PATH + X_train[i], PATH + 'train/' + X_train[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + SX_train[i], PATH + 'train_simg/' + SX_train[i][0:-9] + '.png')
     shutil.copy(IMAGE_PATH + Y_train[i], PATH + 'train_gt/' + Y_train[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_train[i], PATH + 'train_wgt/' + WY_train[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + BY_train[i], PATH + 'train_bgt/' + BY_train[i][0:-11] + '.png')
@@ -91,6 +105,7 @@ for i in range(len(X_train)):
     f_train.write(PATH + 'train/' + X_train[i][0:-8] + '.png' + ' ' + PATH + 'train_gt/' + Y_train[i][0:-7] + '.png' + ' ' + PATH + 'train_wgt/' + WY_train[i][0:-8] + '.png\n')
 for i in range(len(X_test)):
     shutil.copy(IMAGE_PATH + X_test[i], PATH + 'test/' + X_test[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + SX_test[i], PATH + 'test_simg/' + SX_test[i][0:-9] + '.png')
     shutil.copy(IMAGE_PATH + Y_test[i], PATH + 'test_gt/' + Y_test[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_test[i], PATH + 'test_wgt/' + WY_test[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + BY_test[i], PATH + 'test_bgt/' + BY_test[i][0:-11] + '.png')
@@ -99,6 +114,7 @@ for i in range(len(X_test)):
     f_test.write(PATH + 'test/' + X_test[i][0:-8] + '.png' + '\n')
 for i in range(len(X_val)):
     shutil.copy(IMAGE_PATH + X_val[i], PATH + 'val/' + X_val[i][0:-8] + '.png')
+    shutil.copy(IMAGE_PATH + SX_val[i], PATH + 'val_simg/' + SX_val[i][0:-9] + '.png')
     shutil.copy(IMAGE_PATH + Y_val[i], PATH + 'val_gt/' + Y_val[i][0:-7] + '.png')
     shutil.copy(IMAGE_PATH + WY_val[i], PATH + 'val_wgt/' + WY_val[i][0:-8] + '.png')
     shutil.copy(IMAGE_PATH + BY_val[i], PATH + 'val_bgt/' + BY_val[i][0:-11] + '.png')

@@ -333,21 +333,18 @@ void SetGtImg(_DMAP &m, cv::Mat &gtImg)
 }
 
 // Save new ground truth
-void SaveNewGT(int idx) {
-    if (GLOBAL_GT) {
+void SaveNewGT(int idx, bool saveGlobalImg) {
+    if (GLOBAL_GT && saveGlobalImg) {
         SetGtImg(dm, newGtImg);
         cv::imwrite(GLOBAL_GT_FILE + ".new.png" , dm.lmap);
-        printf("%s gt saved!\n", fileName[idx].toStdString().c_str());
     }
-    else {
-        cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
-        writtenGtImg.setTo(0);
-        BGR2Gt(newGtImg, writtenGtImg);
-        if (cv::imwrite((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str(), writtenGtImg)) {
-            printf("%s_gt.png saved!\n", fileName[idx].toStdString().c_str());
-        } else {
-            printf("save error!\n");
-        }
+    cv::Mat writtenGtImg(originGtImg.rows, originGtImg.cols, CV_8UC1);
+    writtenGtImg.setTo(0);
+    BGR2Gt(newGtImg, writtenGtImg);
+    if (cv::imwrite((ANNOTATION_PATH + fileName[idx].toStdString() + "_gt.png").c_str(), writtenGtImg)) {
+        printf("%s_gt.png saved!\n", fileName[idx].toStdString().c_str());
+    } else {
+        printf("save error!\n");
     }
 }
 
@@ -531,6 +528,7 @@ int main(int argc, char* argv[]) {
 
         // Catch keyboard event
         int WaitKey = cv::waitKey(waitkeydelay);
+        SaveNewGT(idx, false);
         if (WaitKey == 27) {      // ESC
             break;
         } else
@@ -569,7 +567,7 @@ int main(int argc, char* argv[]) {
             idx--;
         } else
         if (WaitKey == 32) {        // space bar: save the human annotation & new ground truth
-            SaveNewGT(idx);
+            SaveNewGT(idx, true);
         } else
         if (WaitKey == 'p') {        // change PEN_WIDTH
             printf("Please enter pen width (current PEN_WIDTH=%d): ", PEN_WIDTH);

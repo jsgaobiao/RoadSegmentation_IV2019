@@ -161,7 +161,7 @@ typedef struct {
 } RMAP;
 
 #define	WIDSIZ		60.0
-#define	LENSIZ		200.0
+#define	LENSIZ		60.0
 #define	PIXSIZ		0.2        //0.25
 #define	POSOBSMINHEIGHT	0.6		//0.6m
 #define	VEHICLEHEIGHT	3.0		//3.0m

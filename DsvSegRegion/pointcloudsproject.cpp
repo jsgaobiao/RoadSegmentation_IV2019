@@ -1,5 +1,7 @@
 #include <define.h>
 
+#define HEIGHT_DELTA 20
+
 extern ONEDSVFRAME	*onefrm;
 extern ONEDSVFRAME	*originFrm;
 
@@ -20,7 +22,14 @@ void pointCloudsProject(cv::Mat &img, DMAP &gm)
 
                 int ix = nint(p->x/PIXSIZ) + WIDSIZ/PIXSIZ/2;
                 int iy = nint(p->y/PIXSIZ) + LENSIZ/PIXSIZ/2;
+
                 int step = gm.zmap->widthStep / sizeof(uchar);
+
+                int pHeight = BOUND(p->z * 50 + 100,  1, 255);
+                int tHeight = int(gm.zmap->imageData[iy * step + ix]) + HEIGHT_DELTA;
+                if (pHeight > tHeight)
+                    continue;
+
                 cv::Scalar pColor;
                 if (gm.smap->imageData[(iy * step + ix) * 3 + 1] != 0)  // passable
                     pColor = cv::Scalar(0, 255, 0);

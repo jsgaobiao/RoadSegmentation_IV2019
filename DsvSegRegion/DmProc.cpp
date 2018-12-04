@@ -506,7 +506,6 @@ void GenerateLocDem (DMAP &loc, DMAP &glo)
         }
     }
 
-
     for (y=0; y<loc.len; y++) {
         for (x=0; x<loc.wid; x++) {
             // ÎÞ¹Û²â£¬Ìø¹ý

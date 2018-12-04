@@ -23,21 +23,25 @@ bool isppNeighbor (point3fi *pt, point3fi *cp, bool ishori)
     bool isneighbor=false;
     double dz = fabs(pt->z-cp->z);
     // 高度差小
-    if (dz<0.1)
+//    if (dz<0.1)
+    if (dz<0.07)
         isneighbor = true;
     else {
-        double dh = sqrt(sqr(pt->x-cp->x)+sqr(pt->y-cp->y));
-        // 高度差大，水平距离小 --> 比较陡
-        if (dh<0.56)
-            isneighbor = false;
-        else {
-            // 坡度
-            double ang = atan2(dz, dh);
-            if (ang<0.17)		//5deg
-                isneighbor = true;
-            else
-                isneighbor = false;
-        }
+//        double dh = sqrt(sqr(pt->x-cp->x)+sqr(pt->y-cp->y));
+//        // 高度差大，水平距离小 --> 比较陡
+////        if (dh<0.56)
+//        if (dh<0.86)
+//            isneighbor = false;
+//        else {
+//            // 坡度
+//            double ang = atan2(dz, dh);
+////            if (ang<0.17)		//5deg
+//            if (ang<0.05)		//5deg
+//                isneighbor = true;
+//            else
+//                isneighbor = false;
+//        }
+        isneighbor = false;
     }
 
     return isneighbor;
@@ -187,6 +191,7 @@ UINT RegionGrow()
 		{
             // 如果是未标记过的点，且在路面高度范围内
             if (rm.regionID[rm.wid*x+y]==UNKNOWN && rm.pts[rm.wid*x+y].z>-3 && rm.pts[rm.wid*x+y].z<3) {
+//            if (rm.regionID[rm.wid*x+y]==UNKNOWN && rm.pts[rm.wid*x+y].z>-2 && rm.pts[rm.wid*x+y].z<2) {
 				seed.x = x;
 				seed.y = y;
                 // 区域增长
@@ -269,7 +274,8 @@ void Region2Seg ()
 	int num;
 	for (regionid=0; regionid<rm.regnum; regionid++) {
 		segbuf = &rm.segbuf[regionid];
-		if (segbuf->ptnum<100) {
+        if (segbuf->ptnum<100) {
+//        if (segbuf->ptnum<300) {
 			segbuf->ptnum=0;
 			continue;
 		}
@@ -294,7 +300,7 @@ void Region2Seg ()
 			segbuf->norm.y = Equation[1];
 			segbuf->norm.z = Equation[2];
 		}
-		if (segbuf->norm.z<0.9) 
+        if (segbuf->norm.z<0.9)
 			segbuf->ptnum=0;
 		else 
 			segbuf->ptnum=segbuf->ptnum;
