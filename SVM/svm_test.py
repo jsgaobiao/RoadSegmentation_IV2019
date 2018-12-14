@@ -15,7 +15,7 @@ tf.flags.DEFINE_float("alpha", "1", "L2 regularization parameter, alpha")
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer")
 tf.flags.DEFINE_string("data_dir", "../../data/data_easy/", "path to dataset")
 tf.flags.DEFINE_string("logs_dir", "../../results/svm/checkpoints/", "path to logs directory")
-tf.flags.DEFINE_string("vis_dir", "../../results/svm/vis/", "path to store visualization results")
+tf.flags.DEFINE_string("vis_dir", "../../results/svm/vis_1/", "path to store visualization results")
 tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
 
 NUM_OF_FEATURE = 8
@@ -36,6 +36,20 @@ def VisPred(pred, imgs):
                     ret[i, j] = 2
                 cnt += 1
     cv2.imwrite(FLAGS.vis_dir + "test.png", ret)
+
+# visualization prediction costmap
+def VisCostMap(pred, imgs):
+    ret = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH))
+    cnt = 0
+    # pred ~ [-230, 25]
+    # pred ~ [-1, 1]
+    for i in xrange(IMAGE_HEIGHT):
+        for j in xrange(IMAGE_WIDTH):
+            if (imgs[0, i, j, 0] > 0):
+                ret[i, j] = min(max(0, pred[cnt] * 128 + 128), 255)
+                cnt += 1
+    # print(np.min(ret), np.max(ret))
+    return ret
 
 # main
 
@@ -133,3 +147,14 @@ if (FLAGS.mode == "train"):
         # Visualize an example in test
         test_pred = sess.run(prediction, feed_dict={x_data: test_vector, y_label: test_annotations})
         VisPred(test_pred, test_images)
+
+if (FLAGS.mode == "test"):
+    for i in xrange(len(test_records)):
+        test_vector, test_annotations, test_images = test_dataset_reader.next_batch(1, random_rotate = 0)
+        test_dis = sess.run(model_output, feed_dict={x_data: test_vector, y_label: test_annotations})
+        W = sess.run(A)
+        W = np.linalg.norm(W)
+        test_dis = test_dis / W
+        print(str(i+1) + "/" + str(len(test_records)))
+        costImg = VisCostMap(test_dis, test_images)
+        cv2.imwrite(FLAGS.vis_dir + "cost_" + test_records[i]['filename'] + ".png", costImg.astype(np.uint8))

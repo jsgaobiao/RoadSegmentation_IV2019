@@ -147,7 +147,13 @@ class BatchDatset:
                     if (self.images[i, j, k, 0] > 0):
                         vec = self.GetFeature(j, k)
                         self.feature_vector.append(vec)
-                        self.labels.append([1 if self.annotations[i, j, k, 0] == 1 else -1])
+                        if self.annotations[i, j, k, 0] == 1:       # green : passable
+                            val = 1
+                        elif self.annotations[i, j, k, 0] == 2:     # red: unpassable
+                            val = -1
+                        else:                                       # blue: uncertain
+                            val = 1 if random.random() > 0.5 else -1
+                        self.labels.append([val])
                         cnt += 1
 
         return self.feature_vector, self.labels, self.images[start:end]

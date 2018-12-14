@@ -2,6 +2,7 @@
 build-*-Debug/
 build-*-Release/
 build*/
+build/
 *.user
 *.out
 *.log

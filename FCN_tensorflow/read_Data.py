@@ -20,7 +20,7 @@ def read_dataset(data_dir):
     while (line):
         lineSp = line.split(' ')
         filename = lineSp[0].split('/')[-1].split('.')[0]
-        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'filename': filename}
+        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'weak_annotation': lineSp[2].replace('\n',''), 'filename': filename}
         train_records.append(record)
         line = fTrain.readline()
 
@@ -28,7 +28,7 @@ def read_dataset(data_dir):
     while (line):
         lineSp = line.split(' ')
         filename = lineSp[0].split('/')[-1].split('.')[0]
-        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'filename': filename}
+        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'weak_annotation': lineSp[2].replace('\n',''), 'filename': filename}
         valid_records.append(record)
         line = fVal.readline()
 
@@ -36,7 +36,7 @@ def read_dataset(data_dir):
     while (line):
         lineSp = line.split(' ')
         filename = lineSp[0].split('/')[-1].split('.')[0]
-        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'filename': filename}
+        record = {'image': lineSp[0], 'annotation': lineSp[1].replace('\n',''), 'weak_annotation': lineSp[2].replace('\n',''), 'filename': filename}
         test_records.append(record)
         line = fTest.readline()
 

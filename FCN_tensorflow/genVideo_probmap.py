@@ -5,11 +5,11 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1202_green_vs_others/prob.txt'
-R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1202_red_vs_others/prob.txt'
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1202_red_vs_others/vis/'
-PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1202_red_vs_others/project_vis/'
-NAME = '1202_vs_others'
+G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_green_vs_others/prob.txt'
+R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/prob.txt'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/vis/'
+PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/project_vis/'
+NAME = '1210_vs_others'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
 IS_WEAK_LABEL = False
@@ -123,17 +123,14 @@ def readCost(fg, fr, costMap, pre):
             p_r = float(sr[1])
             if (sum(costMap[i, j, :]) != 0):
                 if (p_g > p_rb):                    # passable
-                    # costMap[i, j, :] = [0, 255, 0]
                     val = (0.5 - (p_g - 0.5)) * 112 + 85        # [85 ~ 141]
                     costMap[i, j, :] = [val, val, val]
                     pre[i, j, :] = [1, 1, 1]
                 elif (p_r > p_gb):                  # unpassable
-                    # costMap[i, j, :] = [0, 0, 255]
                     val = (p_r - 0.5) * 114 + 198               # [198 ~ 255]
                     costMap[i, j, :] = [val, val, val]
                     pre[i, j, :] = [2, 2, 2]
                 elif (p_g < p_rb and p_r < p_gb):   # uncertain
-                    # costMap[i, j, :] = [255, 0, 0]
                     p_b = p_rb / (p_gb + p_rb)
                     val = p_b * 165 + 87                        # [142 ~ 197]
                     costMap[i, j, :] = [val, val, val]
@@ -208,6 +205,7 @@ for i in range(len(imgList)):
     print('Frame: %d / %d' % (i, len(imgList)))
 
     cv2.imwrite(PROJECT_PATH + "pre_" + imgList[i].split('.')[0].split('_')[1] + ".png", grayPre)
+    cv2.imwrite(PROJECT_PATH + "prob_" + imgList[i].split('.')[0].split('_')[1] + ".png", costMap)
 
 OutputResult(cntTable, cntTableBaseline)
 

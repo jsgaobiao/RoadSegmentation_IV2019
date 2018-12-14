@@ -374,12 +374,12 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
         if ((tmpPoint.x < 0 || tmpPoint.y < 0 || tmpPoint.x > img.rows || tmpPoint.y > img.cols)
              &&(navLeft == i - 1))
             navLeft = i;
-        cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 3, cv::Scalar(0,255,0), -1, 8);
+        cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 5, cv::Scalar(0,255,0), -1, 8);
         // draw weak labels
-        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 4, cv::Scalar(1), -1, 8);
+        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 5, cv::Scalar(1), -1, 8);
     }
     for (; navRight < nav.size(); navRight ++) {
-        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 25.0) {
+        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 30.0) {
             break;
         }
         point2d tmpPoint;
@@ -400,9 +400,9 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
         shiftPoint2d (tmpPoint, shv);		//p'=R_tar^{-1}*R_src*p+R_tar^{-1}*(SHV_src-SHV_tar)
         if (tmpPoint.x < 0 || tmpPoint.y < 0 || tmpPoint.x > img.rows || tmpPoint.y > img.cols)
             break;
-        cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 3, cv::Scalar(0,255,0), -1, 8);
+        cv::circle(img, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 5, cv::Scalar(0,255,0), -1, 8);
         // draw weak labels
-        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 4, cv::Scalar(1), -1, 8);
+        cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 5, cv::Scalar(1), -1, 8);
     }
 }
 
@@ -410,8 +410,32 @@ void DrawObs(cv::Mat &img, cv::Mat &weakGT)
 {
     for (int y=0; y<gm.len; y++) {
         for (int x=0; x<gm.wid; x++) {
-            if (gm.demhnum[y*gm.wid+x] > 300 && !gm.demgnum[y*gm.wid+x]) {
+            if (gm.demhnum[y*gm.wid+x] > 50 && !gm.demgnum[y*gm.wid+x]) {
                 weakGT.at<uchar>(y, x) = 2;
+//                img.at<Vec3b>(y, x)[0] = 0;
+//                img.at<Vec3b>(y, x)[1] = 0;
+//                img.at<Vec3b>(y, x)[2] = 255;
+            }
+        }
+    }
+    int dx[4] = {0,1,0,-1};
+    int dy[4] = {1,0,-1,0};
+    // 去除零散的点
+    for (int y=0; y<gm.len; y++) {
+        for (int x=0; x<gm.wid; x++) {
+            int tmp = weakGT.at<uchar>(y, x);
+            if (tmp != 2) continue;
+            int cnt = 0;
+            for (int c = 0; c < 4; c ++) {
+                int yy = y + dy[c];
+                int xx = x + dx[c];
+                if (xx < 0 || yy < 0 || xx >= gm.wid || yy >= gm.len) continue;
+                if (weakGT.at<uchar>(yy, xx) == 2) cnt ++;
+            }
+            if (cnt < 2) {
+                weakGT.at<uchar>(y, x) = 0;
+            }
+            else {
                 img.at<Vec3b>(y, x)[0] = 0;
                 img.at<Vec3b>(y, x)[1] = 0;
                 img.at<Vec3b>(y, x)[2] = 255;
@@ -584,28 +608,30 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
         // 将图片保存为png格式，用作训练/测试数据
         cv::Mat gtMap(gm.smap->height, gm.smap->width, CV_8UC1);
-        if (dFrmNo > 50 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
+//        if (dFrmNo > 50 && onefrm->dsv[0].millisec > 54289915) {    // 去除train和test重复的路段
+        if (onefrm->dsv[0].millisec >= 54289998 && onefrm->dsv[0].millisec <= 54485061) {    // data_easy路段
             stringstream s_fno;
             s_fno << setw(8) << setfill('0') << onefrm->dsv[0].millisec;
             std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/images_easy/";
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             zMap = cv::cvarrToMat(dm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);
 
 		char WaitKey;
 		WaitKey = cvWaitKey(waitkeydelay);
+//        printf("%d\n", waitkeydelay);
 		if (WaitKey==27)
 			break;
         if (WaitKey=='z') {     // 连续播放

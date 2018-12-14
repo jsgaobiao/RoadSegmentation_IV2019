@@ -23,24 +23,24 @@ bool isppNeighbor (point3fi *pt, point3fi *cp, bool ishori)
     bool isneighbor=false;
     double dz = fabs(pt->z-cp->z);
     // 高度差小
-//    if (dz<0.1)
-    if (dz<0.07)
+    if (dz<0.1)
+//    if (dz<0.07)  // cha
         isneighbor = true;
     else {
-//        double dh = sqrt(sqr(pt->x-cp->x)+sqr(pt->y-cp->y));
-//        // 高度差大，水平距离小 --> 比较陡
-////        if (dh<0.56)
-//        if (dh<0.86)
-//            isneighbor = false;
-//        else {
-//            // 坡度
-//            double ang = atan2(dz, dh);
-////            if (ang<0.17)		//5deg
-//            if (ang<0.05)		//5deg
-//                isneighbor = true;
-//            else
-//                isneighbor = false;
-//        }
+        double dh = sqrt(sqr(pt->x-cp->x)+sqr(pt->y-cp->y));
+        // 高度差大，水平距离小 --> 比较陡
+        if (dh<0.56)
+//        if (dh<0.86)  // cha
+            isneighbor = false;
+        else {
+            // 坡度
+            double ang = atan2(dz, dh);
+            if (ang<0.17)		//5deg
+//            if (ang<0.05)		//5deg  cha
+                isneighbor = true;
+            else
+                isneighbor = false;
+        }
         isneighbor = false;
     }
 

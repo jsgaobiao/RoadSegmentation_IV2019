@@ -10,12 +10,12 @@ import BatchDatsetReader as dataset
 from tensorflow.python.framework import ops
 
 FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_integer("batch_size", "1", "batch size for training")
+tf.flags.DEFINE_integer("batch_size", "16", "batch size for training")
 tf.flags.DEFINE_float("alpha", "1", "L2 regularization parameter, alpha")
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer")
 tf.flags.DEFINE_string("data_dir", "../../data/data_easy/", "path to dataset")
-tf.flags.DEFINE_string("logs_dir", "../../results/svm/checkpoints/", "path to logs directory")
-tf.flags.DEFINE_string("vis_dir", "../../results/svm/vis/", "path to store visualization results")
+tf.flags.DEFINE_string("logs_dir", "../../results/svm_bs16/checkpoints/", "path to logs directory")
+tf.flags.DEFINE_string("vis_dir", "../../results/svm_bs16/vis/", "path to store visualization results")
 tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
 
 NUM_OF_FEATURE = 8
@@ -127,7 +127,7 @@ if (FLAGS.mode == "train"):
             print('Step #{} A = {}, b = {}'.format(str(i+1), str(sess.run(A)), str(sess.run(b))))
             print('Loss = ' + str(temp_loss))
         
-        if ((i + 1) % 100 == 0):
+        if ((i + 1) % 10 == 0):
             saver.save(sess, FLAGS.logs_dir + "model.ckpt", i)
 
         # Visualize an example in test

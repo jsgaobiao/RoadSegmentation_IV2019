@@ -10,6 +10,7 @@ string FILE_LIST;
 string DATA_PATH;
 string PRED_PATH;
 string GLOBAL_GT_FILE;
+string VIDEO_FILE;
 bool GLOBAL_GT;
 
 string CALIB_FILE;
@@ -66,6 +67,7 @@ void LoadConfigFile()
         PRED_PATH += '/';
     }
     FILE_LIST = configFile->value("Path/FILE_LIST").toString().toStdString();
+    VIDEO_FILE = configFile->value("Path/VIDEO_FILE").toString().toStdString();
     CALIB_FILE = configFile->value("Path/CALIB_FILE").toString().toStdString();
     DSV_FILE = configFile->value("Path/DSV_FILE").toString().toStdString();
     AVI_FILE = configFile->value("Path/AVI_FILE").toString().toStdString();
@@ -121,6 +123,7 @@ void Init() {
         getchar();
         exit(1);
     }
+
     // Camera/Velodyne calib file
     if (!LoadCameraCalib(CAM_CALIB_FILE.c_str())) {
         printf("Open Camera Calibration files fails.\n");
@@ -461,6 +464,8 @@ int main(int argc, char* argv[]) {
     CheckTimestampRange();
     startFrmNo = FindStartFrame(START_TIME);
 
+    cv::VideoWriter vWriter(VIDEO_FILE.c_str(), CV_FOURCC('M', 'J', 'P', 'G'), 10, Size(640 * 3, 362));
+
     for (int idx = 0; idx < fileName.size(); idx++) {
         int ts = fileName[idx].toInt();
         if (ts < START_TIME) continue;
@@ -487,7 +492,9 @@ int main(int argc, char* argv[]) {
 
         // Read human annotated ground truth
         cv::Mat readImg;
+        cv::Mat costGtImg;
 
+        costGtImg = cv::imread(PRED_PATH + "prob_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
         originGtImg = cv::imread(PRED_PATH + "pre_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
         newGtImg = cv::imread(DATA_PATH + fileName[idx].toStdString() + "_gt.png");
 
@@ -495,22 +502,31 @@ int main(int argc, char* argv[]) {
         Gt2BGR(newGtImg);
 
         // Show image
-        cv::Mat tmpImg;
+        cv::Mat tmpImg, tmpImg1;
 //        UpdateVis();
         cv::resize(inputImgForVis, tmpImg, cv::Size(inputImg.cols * SCALE_RATIO, inputImg.rows * SCALE_RATIO), 0, 0, INTER_NEAREST);
         cv::imshow("input", tmpImg);
         cv::imshow("video", videoImg);
 
+        cv::Mat outFrame;
         // Show point cloud projected to the video
         tmpImg = videoImg.clone();
         pointCloudsProject(tmpImg, newGtImg, inputImg);
         cv::imshow("newGT", newGtImg);
         cv::imshow("video & point cloud", tmpImg);
+
         Gt2BGR(originGtImg);
-        cv::imshow("Baseline", originGtImg);
-        tmpImg = videoImg.clone();
-        pointCloudsProject(tmpImg, originGtImg, inputImg);
-        cv::imshow("video & point cloud (prediction)", tmpImg);
+        // ͶӰcostmap
+//        cv::applyColorMap(costGtImg, originGtImg, cv::COLORMAP_HOT);
+        cv::imshow("prediction", originGtImg);
+        tmpImg1 = videoImg.clone();
+        pointCloudsProject(tmpImg1, originGtImg, inputImg);
+        cv::imshow("video & point cloud (prediction)", tmpImg1);
+
+        cv::hconcat(videoImg, tmpImg1, outFrame);
+        cv::hconcat(outFrame, tmpImg, outFrame);
+        cv::imshow("outFrame", outFrame);
+        vWriter << outFrame;
 
         // Catch keyboard event
         int WaitKey = cv::waitKey(waitkeydelay);
@@ -526,6 +542,7 @@ int main(int argc, char* argv[]) {
         }
     }
     printf("\nDone.\n");
+    vWriter.release();
     fclose(fFileNameList);
     return 0;
 }
