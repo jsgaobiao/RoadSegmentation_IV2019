@@ -52,6 +52,8 @@ int PEN_WIDTH       = 3;
 
 _DMAP dm;
 
+cv::Point2i gtIdx[500][500];
+
 void LoadConfigFile()
 {
     QSettings *configFile = new QSettings(QString(CONFIG_FILE.c_str()), QSettings::IniFormat);
@@ -297,12 +299,15 @@ void CallbackInput(int event, int x, int y, int flags, void *param) {
 void SetGtImg(_DMAP &m, cv::Mat &gtImg)
 {
     MATRIX	rot;
-    cv::Mat tmpImg;
+    cv::Mat tmpImg, anImg;
     point3d	shv = onefrm->dsv[0].shv;
     double gz = shv.z-calibInfo.shv.z;
     tmpImg = gtImg.clone();
+    anImg = annotatedImg.clone();
     cv::transpose(tmpImg, tmpImg);
     cv::flip(tmpImg, tmpImg, 1);
+    cv::transpose(anImg, anImg);
+    cv::flip(anImg, anImg, 1);
 
     createRotMatrix_ZYX(rot, 0, 0, onefrm->dsv[0].ang.z) ;
 
@@ -318,11 +323,14 @@ void SetGtImg(_DMAP &m, cv::Mat &gtImg)
             ix = round((p.x-m.x0)/PIXSIZ);
             iy = round((p.y-m.y0)/PIXSIZ);
             iy = m.lmap.rows - iy - 1;
-            for (int y = iy; y <= iy+1; y ++) {
-                for (int x = ix; x <= ix+1; x ++) {
+            int dy = 0, dx = 0;
+            if (anImg.at<uchar>(i, j) == 0) {
+                dy = 1; dx = 1;
+            }
+            for (int y = iy; y <= iy+dy; y ++) {
+                for (int x = ix; x <= ix+dx; x ++) {
                     if (y<0 || y>=m.lmap.rows) continue;
                     if (x<0 || x>=m.lmap.cols) continue;
-
                     m.lmap.at<cv::Vec3b>(y, x)[0] = tmpImg.at<cv::Vec3b>(i, j)[0];
                     m.lmap.at<cv::Vec3b>(y, x)[1] = tmpImg.at<cv::Vec3b>(i, j)[1];
                     m.lmap.at<cv::Vec3b>(y, x)[2] = tmpImg.at<cv::Vec3b>(i, j)[2];
@@ -426,6 +434,7 @@ void GetGtImg(_DMAP &m, cv::Mat &gtImg)
 
             int val = BGR2Gt(m.lmap.at<cv::Vec3b>(m.lmap.rows - iy - 1, ix));
             if (val < 0) fprintf(stderr, "Color Error!\n");
+            gtIdx[i][j] = cv::Point2i(m.lmap.rows - iy - 1, ix);
             gtImg.at<cv::Vec3b>(i, j)[0] = val;
             gtImg.at<cv::Vec3b>(i, j)[1] = val;
             gtImg.at<cv::Vec3b>(i, j)[2] = val;
