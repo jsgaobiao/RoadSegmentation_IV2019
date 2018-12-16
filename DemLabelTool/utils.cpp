@@ -127,7 +127,7 @@ void pointCloudsProject(cv::Mat &img, cv::Mat _gtImg, cv::Mat zmap)
                     continue;
                 cv::Scalar c(_gtImg.at<cv::Vec3b>(iy, ix)[0], _gtImg.at<cv::Vec3b>(iy, ix)[1], _gtImg.at<cv::Vec3b>(iy, ix)[2]);
                 if (p->x > 6)   // 保留车辆前方6-50m的激光点，排除噪点
-                    cv::circle(img, cv::Point(newX, newY), 2, c, -1);
+                    cv::circle(img, cv::Point(newX, newY), 2, c, 1);
             }
         }
     }

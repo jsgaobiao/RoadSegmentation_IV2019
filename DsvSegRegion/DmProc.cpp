@@ -296,7 +296,7 @@ void PredictGloDem (DMAP &gmtar, DMAP &gmtmp)
                 for (int xx=x0; xx<=x1; xx++) {
                     if (xx<0 || xx>=gmtar.wid) continue;
                     double dd=sqrt(double((xx-p.x)*(xx-p.x)+(yy-p.y)*(yy-p.y)));
-                    double fac=0.89;//(1.0-dd/1.415)*0.9;
+                    double fac= 0.92; //0.89;
                     int dn;
                     double lpr = gmtmp.lpr[y*gmtmp.wid+x]*fac;
                     if (lpr<0.2) continue;
@@ -387,15 +387,17 @@ void UpdateGloDem (DMAP &glo, DMAP &loc)
                     glo.lpr[gy*glo.wid+gx] = min (1.0, glo.lpr[gy*glo.wid+gx] * _fac);
                 }
                 else {
-                    fac = (1.2 - loc.lpr[dy*loc.wid+dx]) * 2.5;
-                    // (暂时不加)可通行区域优先覆盖障碍物格点
-//                    if (loc.lab[dy*loc.wid+dx] == TRAVESABLE) {
-//                        fac *= 2.0;
-//                    }
-                    glo.lpr[gy*glo.wid+gx] = min (1.0, glo.lpr[gy*glo.wid+gx]*fac);
-                    if (glo.lpr[gy*glo.wid+gx] < 0.2) {
-                        glo.lab[gy*glo.wid+gx] = loc.lab[dy*loc.wid+dx];
-                        glo.lpr[gy*glo.wid+gx] = loc.lpr[dy*loc.wid+dx];
+                    if (dis2Vehicle > 10 / PIXSIZ) {
+                        fac = (1.2 - loc.lpr[dy*loc.wid+dx]) * 2.5;
+                        // (暂时不加)可通行区域优先覆盖障碍物格点
+    //                    if (loc.lab[dy*loc.wid+dx] == TRAVESABLE) {
+    //                        fac *= 2.0;
+    //                    }
+                        glo.lpr[gy*glo.wid+gx] = min (1.0, glo.lpr[gy*glo.wid+gx]*fac);
+                        if (glo.lpr[gy*glo.wid+gx] < 0.2) {
+                            glo.lab[gy*glo.wid+gx] = loc.lab[dy*loc.wid+dx];
+                            glo.lpr[gy*glo.wid+gx] = loc.lpr[dy*loc.wid+dx];
+                        }
                     }
                 }
             }

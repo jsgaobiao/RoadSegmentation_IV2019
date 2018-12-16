@@ -408,13 +408,16 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
 
 void DrawObs(cv::Mat &img, cv::Mat &weakGT)
 {
-    for (int y=0; y<gm.len; y++) {
-        for (int x=0; x<gm.wid; x++) {
-            if (gm.demhnum[y*gm.wid+x] > 50 && !gm.demgnum[y*gm.wid+x]) {
+//    for (int y=0; y<gm.len; y++) {
+//        for (int x=0; x<gm.wid; x++) {
+//            if (gm.demhnum[y*gm.wid+x] > 50 && !gm.demgnum[y*gm.wid+x]) {
+//                weakGT.at<uchar>(y, x) = 2;
+//            }
+    for (int y = 0; y < gm.smap->height; y ++) {
+        for (int x = 0; x < gm.smap->width; x ++) {
+            int step = gm.smap->widthStep / (sizeof(uchar)*3);
+            if (gm.smap->imageData[(y*step+x)*3] != 0 || gm.smap->imageData[(y*step+x)*3+2] != 0) {
                 weakGT.at<uchar>(y, x) = 2;
-//                img.at<Vec3b>(y, x)[0] = 0;
-//                img.at<Vec3b>(y, x)[1] = 0;
-//                img.at<Vec3b>(y, x)[2] = 255;
             }
         }
     }
@@ -599,8 +602,8 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         cv::Mat weakGT(gm.smap->height, gm.smap->width, CV_8UC1);
         weakGT.setTo(0);
         cv::cvtColor(zMap, zMap, cv::COLOR_GRAY2BGR);
-        DrawNav(zMap, weakGT);
         DrawObs(zMap, weakGT);
+        DrawNav(zMap, weakGT);
         DrawUnlabeled(zMap, weakGT);
         cv::flip(weakGT, weakGT, 0);
         cv::flip(zMap, zMap, 0);
@@ -616,15 +619,15 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             zMap = cv::cvarrToMat(dm.zmap);
             cv::flip(zMap, zMap, 0);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
-//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
+            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);
