@@ -5,11 +5,11 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_green_vs_others/prob.txt'
-R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/prob.txt'
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/vis/'
-PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/project_vis/'
-NAME = '1210_vs_others_newdata'
+G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_green_vs_others_weak/prob.txt'
+R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/prob.txt'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/vis/'
+PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/project_vis/'
+NAME = '1216_vs_others_weak'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
 IS_WEAK_LABEL = False
@@ -137,16 +137,19 @@ def readCost(fg, fr, costMap, pre):
             p_r = float(sr[1])
             if (sum(costMap[i, j, :]) != 0):
                 if (p_g > p_rb):                    # passable
-                    val = (0.5 - (p_g - 0.5)) * 112 + 85        # [85 ~ 141]
+                    val = (0.5 - (p_g - 0.5)) * 112 + 85 + 30       # [85 ~ 141] HOT_MAP
+                    # val = (p_g - 0.5) * 80 + 100                # [100 ~ 140] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
                     pre[i, j, :] = [1, 1, 1]
                 elif (p_r > p_gb):                  # unpassable
-                    val = (p_r - 0.5) * 114 + 198               # [198 ~ 255]
+                    val = (p_r - 0.5) * 114 + 198              # [198 ~ 255] HOT_MAP
+                    # val = 40 - (p_r - 0.5) * 80                 # [0 ~ 40] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
                     pre[i, j, :] = [2, 2, 2]
                 elif (p_g < p_rb and p_r < p_gb):   # uncertain
                     p_b = p_rb / (p_gb + p_rb)
-                    val = p_b * 165 + 87                        # [142 ~ 197]
+                    val = p_b * 165 + 87                        # [142 ~ 197] HOT_MAP
+                    # val = p_b * 120 + 40                         # [40 ~ 100] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
                     pre[i, j, :] = [3, 3, 3]
     return costMap, pre
@@ -182,12 +185,14 @@ gtList.sort()
 preList.sort()
 costmapList.sort()
 
-videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 10, (IMAGE_WIDTH * 4, IMAGE_HEIGHT), True)
+videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 10, (IMAGE_WIDTH * 5, IMAGE_HEIGHT), True)
 #videoWriter = cv2.VideoWriter('test.avi', cv2.VideoWriter_fourcc(*'XVID'), 5, (IMAGE_WIDTH, IMAGE_HEIGHT * 2), True)
 
 for i in range(len(imgList)):
     img = cv2.imread(DATA_PATH + "test/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     gt  = cv2.imread(DATA_PATH + "test_gt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+    wgt = cv2.imread(DATA_PATH + "test_wgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+    wgt = wgtProcess(wgt)
     bgt = cv2.imread(DATA_PATH + "test_bgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     videoImg = cv2.imread(DATA_PATH + "video/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     # gt = cv2.flip(gt, 0)
@@ -203,18 +208,21 @@ for i in range(len(imgList)):
     gtClone1 = gt.copy()
     grayPre = pre.copy()
     
+    IS_WEAK_LABEL = False
     table = LabelColor(img, gt, pre)
     cntTable += table
     table = LabelColor(img, gtClone, bgt)
     cntTableBaseline += table
-    # none = LabelColor(img, wgt, gtClone1)
+    IS_WEAK_LABEL = True
+    none = LabelColor(img, wgt, gtClone1)
 
     colorizedImg = cv2.applyColorMap(costMap, cv2.COLORMAP_HOT)
+    colorizedImg = preProcess(img, colorizedImg)
     videoImg = cv2.resize(videoImg, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
     # mergeImg0 = np.concatenate((img, wgt, pre), axis=1)
     # mergeImg1 = np.concatenate((videoImg, bgt, gt), axis=1)
     # mergeImg = np.concatenate((mergeImg0, mergeImg1), axis=0)
-    mergeImg = np.concatenate((img, colorizedImg, pre, gt), axis=1)
+    mergeImg = np.concatenate((img, colorizedImg, pre, gt, wgt), axis=1)
     videoWriter.write(mergeImg)
     print('Frame: %d / %d' % (i, len(imgList)))
 
