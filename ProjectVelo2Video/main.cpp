@@ -494,8 +494,8 @@ int main(int argc, char* argv[]) {
         cv::Mat readImg;
         cv::Mat costGtImg;
 
-        costGtImg = cv::imread(PRED_PATH + "prob_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
-        originGtImg = cv::imread(PRED_PATH + "pre_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
+//        costGtImg = cv::imread(PRED_PATH + "prob_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
+        originGtImg = cv::imread(PRED_PATH + "pred_" + fileName[idx].toStdString() + ".png", cv::IMREAD_COLOR);
         newGtImg = cv::imread(DATA_PATH + fileName[idx].toStdString() + "_gt.png");
 
         LabelUnknown(newGtImg, inputImg);

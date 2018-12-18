@@ -9,7 +9,7 @@ G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_green_vs_
 R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/prob.txt'
 PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/vis/'
 PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/project_vis/'
-NAME = '1210_vs_others'
+NAME = '1210_vs_others_newdata'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
 IS_WEAK_LABEL = False
@@ -22,7 +22,7 @@ def ColorMap(data):
         data = [0, 0, 0]
     elif data[0] == 1:      # passable
         data = [0, 255, 0]
-    elif data[0] == 2:      # impassable
+    elif data[0] == 2:      # iprecisionssable
         data = [0, 0, 255]
     elif data[0] == 3:      # uncertain
         data = [255, 0, 0]
@@ -65,10 +65,11 @@ def OutputResult(table, baseline):
             fout.write('%d\t' % table[i,j])
         fout.write('\n')
     fout.write('---------------------------\n')
-    fout.write('label\ttp\tfp\tfn\tIoU\tmPA\n')
+    fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
     for i in range(1,NUM_OF_CLASSESS):
         tp = fp = fn = cn = 0
         tp = table[i,i].astype(int)
+        fn += table[i,0]
         for j in range(1, NUM_OF_CLASSESS):
             if i != j:
                 fp += table[j,i].astype(int)
@@ -77,11 +78,17 @@ def OutputResult(table, baseline):
             IoU = float(tp) / float(tp + fp + fn)
         else:
             IoU = 0
-        if (tp + fp != 0):
-            mPA = float(tp)/float(tp+fp)
+
+        if (tp + fn != 0):
+            recall = float(tp) / float(tp + fn)
         else:
-            mPA = 0
-        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(mPA)))
+            recall = 0
+
+        if (tp + fp != 0):
+            precision = float(tp)/float(tp+fp)
+        else:
+            precision = 0
+        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
 
     fout.write('-------------Baseline--------------\n')
     for i in range(NUM_OF_CLASSESS):
@@ -89,10 +96,11 @@ def OutputResult(table, baseline):
             fout.write('%d\t' % baseline[i,j])
         fout.write('\n')
     fout.write('---------------------------\n')
-    fout.write('label\ttp\tfp\tfn\tIoU\tmPA\n')
+    fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
     for i in range(1,NUM_OF_CLASSESS):
         tp = fp = fn = cn = 0
         tp = baseline[i,i].astype(int)
+        fn += table[i,0]
         for j in range(1, NUM_OF_CLASSESS):
             if i != j:
                 fp += baseline[j,i].astype(int)
@@ -101,11 +109,17 @@ def OutputResult(table, baseline):
             IoU = float(tp) / float(tp + fp + fn)
         else:
             IoU = 0
-        if (tp + fp != 0):
-            mPA = float(tp)/float(tp+fp)
+
+        if (tp + fn != 0):
+            recall = float(tp) / float(tp + fn)
         else:
-            mPA = 0
-        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(mPA)))
+            recall = 0
+
+        if (tp + fp != 0):
+            precision = float(tp)/float(tp+fp)
+        else:
+            precision = 0
+        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
     fout.close()
 
 def readCost(fg, fr, costMap, pre):
