@@ -1,9 +1,9 @@
-# diff with 1211_FCN_green_vs_others_weak: use RegionGrow negative samples as weak annotation
 from __future__ import print_function
 import tensorflow as tf
 from tensorflow.python import debug as tf_debug
 import numpy as np
 import cv2
+import os
 
 import TensorflowUtils as utils
 import read_Data as image_reader
@@ -13,11 +13,11 @@ import pdb
 from six.moves import xrange
 
 FLAGS = tf.flags.FLAGS
-tf.flags.DEFINE_string("result_log", "../../results/1216_green_vs_others_weak/result.txt", "path to mPA log")
+tf.flags.DEFINE_string("result_log", "../../results/1220_3label_fullysup/result.txt", "path to mPA log")
 tf.flags.DEFINE_integer("batch_size", "16", "batch size for training")
-tf.flags.DEFINE_string("logs_dir", "../../results/1216_green_vs_others_weak/checkpoints/", "path to logs directory")
-tf.flags.DEFINE_string("vis_dir",  "../../results/1216_green_vs_others_weak/vis/", "path to save results of visualization")
-tf.flags.DEFINE_string("vis_train_dir",  "../../results/1216_green_vs_others_weak/vis_train/", "path to save results of visualization")
+tf.flags.DEFINE_string("logs_dir", "../../results/1220_3label_fullysup/checkpoints/", "path to logs directory")
+tf.flags.DEFINE_string("vis_dir",  "../../results/1220_3label_fullysup/vis/", "path to save results of visualization")
+tf.flags.DEFINE_string("vis_train_dir",  "../../results/1220_3label_fullysup/vis_train/", "path to save results of visualization")
 tf.flags.DEFINE_string("data_dir", "../../data/data_easy/", "path to dataset")
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer")
 tf.flags.DEFINE_string("model_dir", "../../data/Model_zoo/", "Path to vgg model mat")
@@ -25,15 +25,15 @@ tf.flags.DEFINE_bool('debug', "False", "Debug mode: True/ False")
 tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
 
 MODEL_URL = 'http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat'
-prob_log = "../../results/1216_green_vs_others_weak/prob.txt"
+prob_log = "../../results/1220_3label_fullysup/prob.txt"
 
-MAX_ITERATION = int(1e4 + 1)
-NUM_OF_CLASSESS = 3
+MAX_ITERATION = int(5e4 + 1)
+NUM_OF_CLASSESS = 4
 IMAGE_SIZE = 224
 IMAGE_HEIGHT = 300
 IMAGE_WIDTH = 300
 LR_DECREASE_RATE = 0.1
-LR_DECREASE_ITER = int(2e4)
+LR_DECREASE_ITER = int(1e4)
 
 
 def vgg_net(weights, image):
@@ -172,10 +172,11 @@ def OutputResult(itr, table):
             fout.write('%d\t' % table[i,j])
         fout.write('\n')
     fout.write('---------------------------\n')
-    fout.write('label\ttp\tfp\tfn\tIoU\tmPA\n')
+    fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
     for i in range(1,NUM_OF_CLASSESS):
         tp = fp = fn = cn = 0
         tp = table[i,i].astype(int)
+        fn += table[i,0]
         for j in range(1, NUM_OF_CLASSESS):
             if i != j:
                 fp += table[j,i].astype(int)
@@ -184,7 +185,17 @@ def OutputResult(itr, table):
             IoU = float(tp) / float(tp + fp + fn)
         else:
             IoU = 0
-        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(tp)/float(tp+fp)))
+
+        if (tp + fn != 0):
+            recall = float(tp) / float(tp + fn)
+        else:
+            recall = 0
+
+        if (tp + fp != 0):
+            precision = float(tp)/float(tp+fp)
+        else:
+            precision = 0
+        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
     fout.flush()
 
 def Gray2BGR(gray_img):
@@ -206,8 +217,8 @@ def main(argv=None):
     pred_annotation, logits = inference(image, keep_probability)
     costProb = tf.nn.softmax(logits)
     labels = tf.squeeze(annotation, squeeze_dims=[3])
-    # merge label 2,3 to label 2
-    labels = tf.where(tf.not_equal(labels, 3), labels, tf.ones_like(labels) * 2)
+    # merge label 3 to label 0
+    # labels = tf.where(tf.not_equal(labels, 3), labels, tf.ones_like(labels) * 0)
 
     annotation_BGR = Gray2BGR(annotation)
     pred_annotation_BGR = Gray2BGR(pred_annotation)
@@ -216,7 +227,7 @@ def main(argv=None):
     pred_sum = tf.summary.image("pred_annotation", tf.cast(pred_annotation_BGR, tf.uint8), max_outputs=4)
 
     # Calculate loss
-    class_weights = tf.constant([0.0,  5.0,  1.0])
+    class_weights = tf.constant([0.0,  1.0,  1.0, 1.0])
     onehot_labels = tf.one_hot(labels, depth=NUM_OF_CLASSESS)
     weights = tf.reduce_sum(class_weights * onehot_labels, axis=3)
     # loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(labels=labels, logits=logits, name="entropy")))
@@ -272,7 +283,7 @@ def main(argv=None):
                 FLAGS.learning_rate *= LR_DECREASE_RATE
 
             train_images, train_annotations, train_weak_annotations = train_dataset_reader.next_batch_weak(FLAGS.batch_size, random_rotate = 1)
-            feed_dict = {image: train_images, annotation: train_weak_annotations, keep_probability: 0.85}
+            feed_dict = {image: train_images, annotation: train_annotations, keep_probability: 0.85}
             sess.run(train_op, feed_dict=feed_dict)
 
             if itr % 50 == 0:
@@ -281,7 +292,7 @@ def main(argv=None):
                 summary_writer.add_summary(summary_str, itr)
                 summary_train_writer.add_summary(summary_loss, itr)
 
-            if (itr % 500 == 0):
+            if (itr % 2000 == 0):
                 valid_images, valid_annotations, valid_weak_annotations = validation_dataset_reader.next_batch_weak(FLAGS.batch_size, random_rotate = 0)
                 valid_loss, summary_loss = sess.run([loss, loss_sum], feed_dict={image: valid_images, annotation: valid_annotations,
                                                        keep_probability: 1.0})
@@ -298,8 +309,8 @@ def main(argv=None):
                 for i in range(len(test_records)):
                     test_images, test_annotations, test_weak_annotations = test_dataset_reader.next_batch_weak(1, random_rotate = 0)
                     pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations, keep_probability: 1.0})
-                    # merge label 2,3 to label 2
-                    test_annotations = np.where(test_annotations != 3, test_annotations, 2)
+                    # merge label 3 to label 0
+                    # test_annotations = np.where(test_annotations != 3, test_annotations, 0)
                     test_annotations = np.squeeze(test_annotations, axis=3)
                     pred = np.squeeze(pred, axis=3)
                     table = CalcConfusionMatrix(test_annotations[0], pred[0])
@@ -309,7 +320,9 @@ def main(argv=None):
 
 
     elif FLAGS.mode == "test":
-        ftest = open(prob_log, 'w')
+        # ftest = open(prob_log, 'w')
+        if not os.path.exists(FLAGS.vis_dir):
+            os.makedirs(FLAGS.vis_dir)
         for itr in range(len(test_records)):
             test_images, test_annotations, test_weak_annotations = test_dataset_reader.next_batch_weak(1, random_rotate = 0)
             pred = sess.run(pred_annotation, feed_dict={image: test_images, annotation: test_annotations,
@@ -320,20 +333,20 @@ def main(argv=None):
             test_weak_annotations = np.squeeze(test_weak_annotations, axis=3)
             pred = np.squeeze(pred, axis=3)
             costImg = np.zeros((IMAGE_HEIGHT, IMAGE_WIDTH))
-            ftest.write(test_records[itr]['filename'])
-            ftest.write("\n")
-            for i in range(IMAGE_HEIGHT):
-                for j in range(IMAGE_WIDTH):
-                    ftest.write("%.10f %.10f\n" % (float(costMap[0, i, j, 1]), float(costMap[0, i, j, 2])))
-                    if (test_images[0, i, j, 0] != 0):
-                        costImg[i, j] = costMap[0, i, j, 1] / (costMap[0, i, j, 1] + costMap[0, i, j, 2]) * 255
+            # ftest.write(test_records[itr]['filename'])
+            # ftest.write("\n")
+            # for i in range(IMAGE_HEIGHT):
+                # for j in range(IMAGE_WIDTH):
+                    # ftest.write("%.10f %.10f\n" % (float(costMap[0, i, j, 1]), float(costMap[0, i, j, 2])))
+                    # if (test_images[0, i, j, 0] != 0):
+                        # costImg[i, j] = costMap[0, i, j, 1] / (costMap[0, i, j, 1] + costMap[0, i, j, 2]) * 255
             print(str(itr) + '/' + str(len(test_records)))
             utils.save_image(test_images[0].astype(np.uint8), FLAGS.vis_dir, name="inp_" + test_records[itr]['filename'])
             utils.save_image(test_annotations[0].astype(np.uint8), FLAGS.vis_dir, name="gt_" + test_records[itr]['filename'])
             utils.save_image(test_weak_annotations[0].astype(np.uint8), FLAGS.vis_dir, name="wgt_" + test_records[itr]['filename'])
             utils.save_image(pred[0].astype(np.uint8), FLAGS.vis_dir, name="pred_" + test_records[itr]['filename'])
             utils.save_image(costImg.astype(np.uint8), FLAGS.vis_dir, name="cost_" + test_records[itr]['filename'])
-        ftest.close()
+        # ftest.close()
 
     elif FLAGS.mode == "test_trainset":
         for itr in range(len(train_records)):
