@@ -5,20 +5,19 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_2label_fullysup/vis/'
-PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_2label_fullysup/project_vis/'
-NAME = '1220_2label_fullysup_Qeval'
+G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_green_vs_others_quarter/prob.txt'
+R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others_quarter/prob.txt'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others_quarter/vis/'
+PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others_quarter/project_vis/'
+NAME = '1210_vs_others_quarter_Qval'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
 IS_WEAK_LABEL = False
 IMAGE_WIDTH = 300
 IMAGE_HEIGHT = 300
-NUM_OF_CLASSESS = 3
+NUM_OF_CLASSESS = 4
 
 def ColorMap(data):
-    if (data[0] >= NUM_OF_CLASSESS):
-        data = [0, 0, 0]
-        return data
     if data[0] == 0:        # unknown
         data = [0, 0, 0]
     elif data[0] == 1:      # passable
@@ -127,50 +126,59 @@ def OutputResult(table, tableWeak):
     #     fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
     fout.close()
 
-def readCost(costMap, pre):
+def readCost(fg, fr, costMap, pre):
+    ts = fg.readline()
+    ts = fr.readline()
     for i in xrange(IMAGE_HEIGHT):
         for j in xrange(IMAGE_WIDTH):
+            sg = fg.readline()
+            sr = fr.readline()
+            sg = sg.replace('\n', '').split(' ')
+            sr = sr.replace('\n', '').split(' ')
+            p_g = float(sg[0])
+            p_rb = float(sg[1])
+            p_gb = float(sr[0])
+            p_r = float(sr[1])
             if (sum(costMap[i, j, :]) != 0):
-                if (pre[i, j, 0] == 0):
-                    costMap[i, j, :] = [0, 0, 0]
-                if (pre[i, j, 0] == 1):                    # passable
-                    p_g = 1.0
+                if (p_g > p_rb):                    # passable
                     val = (0.5 - (p_g - 0.5)) * 112 + 85 + 30       # [85 ~ 141] HOT_MAP
                     # val = (p_g - 0.5) * 80 + 100                # [100 ~ 140] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
-                elif (pre[i, j, 0] == 2):                  # unpassable
-                    p_r = 1.0
+                    pre[i, j, :] = [1, 1, 1]
+                elif (p_r > p_gb):                  # unpassable
                     val = (p_r - 0.5) * 114 + 198              # [198 ~ 255] HOT_MAP
                     # val = 40 - (p_r - 0.5) * 80                 # [0 ~ 40] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
-                elif (pre[i, j, 0] == 3):   # uncertain
-                    p_b = 0.5
-                    val = 0.5 * 165 + 87                        # [142 ~ 197] HOT_MAP
+                    pre[i, j, :] = [2, 2, 2]
+                elif (p_g < p_rb and p_r < p_gb):   # uncertain
+                    p_b = p_rb / (p_gb + p_rb)
+                    val = p_b * 165 + 87                        # [142 ~ 197] HOT_MAP
                     # val = p_b * 120 + 40                         # [40 ~ 100] RAINBOW_MAP
                     costMap[i, j, :] = [val, val, val]
+                    pre[i, j, :] = [3, 3, 3]
     return costMap, pre
 
 def CalcResult(pre, gt):
-    table = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
+    table = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
     height, width, channel = gt.shape
     for i in range(height):
         for j in range(width):
             # caculate accuracy
             table[gt[i,j,0]][pre[i,j,0]] += 1
-            if (gt[i,j,0] >= NUM_OF_CLASSESS):
-                gt[i,j] = [0, 0, 0]
-            if (pre[i,j,0] >= NUM_OF_CLASSESS):
-                pre[i,j] = [0, 0, 0]
     return table
 
 # main
+fg = open(G_PATH, "r")
+fr = open(R_PATH, "r")
+
 listName = os.listdir(PATH)
 imgList = []
 gtList = []
 preList = []
-# costmapList = []
-cntTable = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
-cntTableWeak = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
+costmapList = []
+cntTable = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
+cntTableWeak = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
+# cntTableBaseline = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
 
 for name in listName:
     # input image
@@ -183,19 +191,16 @@ for name in listName:
     elif name.split('/')[-1][0] == 'p':
         preList.append(name)
     # costmap
-    # elif name.split('/')[-1][0] == 'c':
-        # costmapList.append(name)
+    elif name.split('/')[-1][0] == 'c':
+        costmapList.append(name)
 
 imgList.sort()
 gtList.sort()
 preList.sort()
-# costmapList.sort()
+costmapList.sort()
 
 videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 10, (IMAGE_WIDTH * 5, IMAGE_HEIGHT), True)
 #videoWriter = cv2.VideoWriter('test.avi', cv2.VideoWriter_fourcc(*'XVID'), 5, (IMAGE_WIDTH, IMAGE_HEIGHT * 2), True)
-
-if not os.path.exists(PROJECT_PATH):
-    os.makedirs(PROJECT_PATH)
 
 for i in range(len(imgList)):
     img = cv2.imread(DATA_PATH + "test/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
@@ -212,7 +217,7 @@ for i in range(len(imgList)):
     pre = preProcess(img, pre)
 
     costMap = img.copy()
-    costMap, pre = readCost(costMap, pre)
+    costMap, pre = readCost(fg, fr, costMap, pre)
 
     gtClone = gt.copy()
     none = gt.copy()
@@ -242,3 +247,5 @@ for i in range(len(imgList)):
 OutputResult(cntTable, cntTableWeak)
 
 videoWriter.release()
+fg.close()
+fr.close()

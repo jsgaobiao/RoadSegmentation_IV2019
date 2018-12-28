@@ -5,11 +5,11 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_green_vs_others_weak/prob.txt'
-R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/prob.txt'
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/vis/'
-PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1216_red_vs_others_weak/project_vis/'
-NAME = '1216_vs_others_weak_Qval'
+G_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_green_vs_others/prob.txt'
+R_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/prob.txt'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/vis/'
+PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1210_red_vs_others/project_vis/'
+NAME = '1210_vs_others_newdata_Qval'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
 IS_WEAK_LABEL = False
@@ -65,7 +65,7 @@ def OutputResult(table, tableWeak):
     # Q3 = TP(G) / Tot(G)                       // recall
     # Q4 = 1 - ( FP(G) / Tot(preG) )           
 
-    tot_preG = float(sum(table[:,1]))                           # table[1,1] + table[2,1] + table[3,1]
+    tot_preG = float(sum(table[:,1]) - table[0,1])              # table[1,1] + table[2,1] + table[3,1]
     tot_G = float(sum(table[1,:]))
     tp_GB = float(sum(table[:,1]) - table[2,1] - table[0,1])    # table[1,1] + table[3,1]
     tp_G = float(table[1,1])
@@ -77,7 +77,7 @@ def OutputResult(table, tableWeak):
     fout.write('Q1_1: %.6f\n' % (tp_G / tot_preG))
     fout.write('Q2: %.6f\n' % (tp_WG / tot_WG))
     fout.write('Q3: %.6f\n' % (tp_G / tot_G))
-    fout.write('Q4: %.6f\n' % (1 - fp_G / tot_preG))
+    # fout.write('Q4: %.6f\n' % (1 - fp_G / tot_preG))
     fout.write('\n')
 
     fout.write('------------table (GT human)---------------\n')
@@ -102,28 +102,28 @@ def OutputResult(table, tableWeak):
             precision = float(tp) / float(tp+fp)
         fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
 
-    fout.write('\n-------------table (Weak annotation)--------------\n')
-    for i in range(NUM_OF_CLASSESS):
-        for j in range(NUM_OF_CLASSESS):
-            fout.write('%d\t' % tableWeak[i,j])
-        fout.write('\n')
-    fout.write('---------------------------\n')
-    fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
-    for i in range(1,NUM_OF_CLASSESS):
-        tp = fp = fn = IoU = recall = precision = 0
-        tp = tableWeak[i,i].astype(int)
-        fn += table[i,0]
-        for j in range(1, NUM_OF_CLASSESS):
-            if i != j:
-                fp += tableWeak[j,i].astype(int)
-                fn += tableWeak[i,j].astype(int)
-        if (tp + fp + fn != 0):
-            IoU = float(tp) / float(tp + fp + fn)
-        if (tp + fn != 0):
-            recall = float(tp) / float(tp + fn)
-        if (tp + fp != 0):
-            precision = float(tp)/float(tp+fp)
-        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
+    # fout.write('\n-------------table (Weak annotation)--------------\n')
+    # for i in range(NUM_OF_CLASSESS):
+    #     for j in range(NUM_OF_CLASSESS):
+    #         fout.write('%d\t' % tableWeak[i,j])
+    #     fout.write('\n')
+    # fout.write('---------------------------\n')
+    # fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
+    # for i in range(1,NUM_OF_CLASSESS):
+    #     tp = fp = fn = IoU = recall = precision = 0
+    #     tp = tableWeak[i,i].astype(int)
+    #     fn += table[i,0]
+    #     for j in range(1, NUM_OF_CLASSESS):
+    #         if i != j:
+    #             fp += tableWeak[j,i].astype(int)
+    #             fn += tableWeak[i,j].astype(int)
+    #     if (tp + fp + fn != 0):
+    #         IoU = float(tp) / float(tp + fp + fn)
+    #     if (tp + fn != 0):
+    #         recall = float(tp) / float(tp + fn)
+    #     if (tp + fp != 0):
+    #         precision = float(tp)/float(tp+fp)
+    #     fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
     fout.close()
 
 def readCost(fg, fr, costMap, pre):
@@ -205,7 +205,7 @@ videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'),
 for i in range(len(imgList)):
     img = cv2.imread(DATA_PATH + "test/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     gt  = cv2.imread(DATA_PATH + "test_gt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    wgt = cv2.imread(DATA_PATH + "test_wgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+    wgt = cv2.imread(DATA_PATH + "eval_wgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     wgt = wgtProcess(wgt)
     bgt = cv2.imread(DATA_PATH + "test_bgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
     videoImg = cv2.imread(DATA_PATH + "video/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)

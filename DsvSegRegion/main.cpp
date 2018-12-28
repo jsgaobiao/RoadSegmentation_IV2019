@@ -379,7 +379,7 @@ void DrawNav(cv::Mat &img, cv::Mat &weakGT)
         cv::circle(weakGT, cv::Point((int)tmpPoint.x, (int)tmpPoint.y), 5, cv::Scalar(1), -1, 8);
     }
     for (; navRight < nav.size(); navRight ++) {
-        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 30.0) {
+        if (sqrt(sqr(nav[navRight].x - centerPoint.x)+sqr(nav[navRight].y - centerPoint.y)) > 15.0) {
             break;
         }
         point2d tmpPoint;
@@ -615,19 +615,20 @@ void DoProcessingOffline(/*P_CGQHDL64E_INFO_MSG *veloData, P_DWDX_INFO_MSG *dwdx
         if (onefrm->dsv[0].millisec >= 54289998 && onefrm->dsv[0].millisec <= 54485061) {    // data_easyÂ·¶Î
             stringstream s_fno;
             s_fno << setw(8) << setfill('0') << onefrm->dsv[0].millisec;
-            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/images_easy/";
+            std::string DATA_PATH = "/home/gaobiao/Documents/RoadSegmentation_IV2019/data/eval_wgt/";
 
             zMap = cv::cvarrToMat(gm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_img.png", zMap);
             zMap = cv::cvarrToMat(dm.zmap);
             cv::flip(zMap, zMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_simg.png", zMap);
             Cvt2Gt(gm.smap, gtMap);
             cv::flip(gtMap, gtMap, 0);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
-            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_basegt.png", gtMap);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_wgt.png", weakGT);
+            cv::imwrite(DATA_PATH + s_fno.str() + ".png", weakGT);
+//            cv::imwrite(DATA_PATH + s_fno.str() + "_video.png", vFrame);
         }
 
 //        cv::setMouseCallback("gsublab", CallbackLocDem, 0);

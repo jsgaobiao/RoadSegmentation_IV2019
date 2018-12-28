@@ -5,15 +5,14 @@ import matplotlib.pyplot as plot
 import matplotlib.image as mpimg
 import pdb
 
-PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_2label_fullysup/vis/'
-PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_2label_fullysup/project_vis/'
-NAME = '1220_2label_fullysup_Qeval'
+PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_3label_fullysup/vis/'
+PROJECT_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/results/1220_3label_fullysup/project_vis/'
+NAME = '1220_3label_fullysup_Qeval'
 DATA_PATH = '/home/gaobiao/Documents/RoadSegmentation_IV2019/data/data_easy/'
 
-IS_WEAK_LABEL = False
 IMAGE_WIDTH = 300
 IMAGE_HEIGHT = 300
-NUM_OF_CLASSESS = 3
+NUM_OF_CLASSESS = 4
 
 def ColorMap(data):
     if (data[0] >= NUM_OF_CLASSESS):
@@ -66,7 +65,7 @@ def OutputResult(table, tableWeak):
     # Q3 = TP(G) / Tot(G)                       // recall
     # Q4 = 1 - ( FP(G) / Tot(preG) )           
 
-    tot_preG = float(sum(table[:,1]) - table[0,1])              # table[1,1] + table[2,1] + table[3,1]
+    tot_preG = float(sum(table[:,1]))                           # table[1,1] + table[2,1] + table[3,1]
     tot_G = float(sum(table[1,:]))
     tp_GB = float(sum(table[:,1]) - table[2,1] - table[0,1])    # table[1,1] + table[3,1]
     tp_G = float(table[1,1])
@@ -78,7 +77,7 @@ def OutputResult(table, tableWeak):
     fout.write('Q1_1: %.6f\n' % (tp_G / tot_preG))
     fout.write('Q2: %.6f\n' % (tp_WG / tot_WG))
     fout.write('Q3: %.6f\n' % (tp_G / tot_G))
-    # fout.write('Q4: %.6f\n' % (1 - fp_G / tot_preG))
+    fout.write('Q4: %.6f\n' % (1 - fp_G / tot_preG))
     fout.write('\n')
 
     fout.write('------------table (GT human)---------------\n')
@@ -103,36 +102,34 @@ def OutputResult(table, tableWeak):
             precision = float(tp) / float(tp+fp)
         fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
 
-    # fout.write('\n-------------table (Weak annotation)--------------\n')
-    # for i in range(NUM_OF_CLASSESS):
-    #     for j in range(NUM_OF_CLASSESS):
-    #         fout.write('%d\t' % tableWeak[i,j])
-    #     fout.write('\n')
-    # fout.write('---------------------------\n')
-    # fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
-    # for i in range(1,NUM_OF_CLASSESS):
-    #     tp = fp = fn = IoU = recall = precision = 0
-    #     tp = tableWeak[i,i].astype(int)
-    #     fn += table[i,0]
-    #     for j in range(1, NUM_OF_CLASSESS):
-    #         if i != j:
-    #             fp += tableWeak[j,i].astype(int)
-    #             fn += tableWeak[i,j].astype(int)
-    #     if (tp + fp + fn != 0):
-    #         IoU = float(tp) / float(tp + fp + fn)
-    #     if (tp + fn != 0):
-    #         recall = float(tp) / float(tp + fn)
-    #     if (tp + fp != 0):
-    #         precision = float(tp)/float(tp+fp)
-    #     fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
+    fout.write('\n-------------table (Weak annotation)--------------\n')
+    for i in range(NUM_OF_CLASSESS):
+        for j in range(NUM_OF_CLASSESS):
+            fout.write('%d\t' % tableWeak[i,j])
+        fout.write('\n')
+    fout.write('---------------------------\n')
+    fout.write('label\ttp\tfp\tfn\tIoU\trecall\tprecision\n')
+    for i in range(1,NUM_OF_CLASSESS):
+        tp = fp = fn = IoU = recall = precision = 0
+        tp = tableWeak[i,i].astype(int)
+        fn += table[i,0]
+        for j in range(1, NUM_OF_CLASSESS):
+            if i != j:
+                fp += tableWeak[j,i].astype(int)
+                fn += tableWeak[i,j].astype(int)
+        if (tp + fp + fn != 0):
+            IoU = float(tp) / float(tp + fp + fn)
+        if (tp + fn != 0):
+            recall = float(tp) / float(tp + fn)
+        if (tp + fp != 0):
+            precision = float(tp)/float(tp+fp)
+        fout.write('%d\t%d\t%d\t%d\t%.6f\t%.6f\t%.6f\n' % (int(i), int(tp), int(fp), int(fn), float(IoU), float(recall), float(precision)))
     fout.close()
 
 def readCost(costMap, pre):
     for i in xrange(IMAGE_HEIGHT):
         for j in xrange(IMAGE_WIDTH):
             if (sum(costMap[i, j, :]) != 0):
-                if (pre[i, j, 0] == 0):
-                    costMap[i, j, :] = [0, 0, 0]
                 if (pre[i, j, 0] == 1):                    # passable
                     p_g = 1.0
                     val = (0.5 - (p_g - 0.5)) * 112 + 85 + 30       # [85 ~ 141] HOT_MAP
@@ -151,93 +148,60 @@ def readCost(costMap, pre):
     return costMap, pre
 
 def CalcResult(pre, gt):
-    table = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
+    table = np.zeros((NUM_OF_CLASSESS, NUM_OF_CLASSESS))
     height, width, channel = gt.shape
     for i in range(height):
         for j in range(width):
             # caculate accuracy
-            table[gt[i,j,0]][pre[i,j,0]] += 1
             if (gt[i,j,0] >= NUM_OF_CLASSESS):
                 gt[i,j] = [0, 0, 0]
             if (pre[i,j,0] >= NUM_OF_CLASSESS):
                 pre[i,j] = [0, 0, 0]
+            table[gt[i,j,0]][pre[i,j,0]] += 1
     return table
 
 # main
-listName = os.listdir(PATH)
-imgList = []
-gtList = []
-preList = []
-# costmapList = []
-cntTable = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
-cntTableWeak = np.zeros((NUM_OF_CLASSESS+1, NUM_OF_CLASSESS+1))
+time_stamp = '54436337'
+img = cv2.imread(DATA_PATH + "test/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+gt  = cv2.imread(DATA_PATH + "test_gt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+wgt = cv2.imread(DATA_PATH + "test_wgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+wgt = wgtProcess(wgt)
+bgt = cv2.imread(DATA_PATH + "test_bgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+videoImg = cv2.imread(DATA_PATH + "video/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
+pre = cv2.imread(PATH + preList[i], cv2.IMREAD_COLOR)
 
-for name in listName:
-    # input image
-    if name.split('/')[-1][0] == 'i':
-        imgList.append(name)
-    # ground truth
-    elif name.split('/')[-1][0] == 'g':
-        gtList.append(name)
-    # prediction
-    elif name.split('/')[-1][0] == 'p':
-        preList.append(name)
-    # costmap
-    # elif name.split('/')[-1][0] == 'c':
-        # costmapList.append(name)
+new_gt = gt.copy()
+gt = preProcess(img, gt)
+wgt = preProcess(img, wgt)
+pre = preProcess(img, pre)
 
-imgList.sort()
-gtList.sort()
-preList.sort()
-# costmapList.sort()
+costMap = img.copy()
+costMap, pre = readCost(costMap, pre)
 
-videoWriter = cv2.VideoWriter(NAME+'.avi', cv2.cv.CV_FOURCC('M', 'J', 'P', 'G'), 10, (IMAGE_WIDTH * 5, IMAGE_HEIGHT), True)
-#videoWriter = cv2.VideoWriter('test.avi', cv2.VideoWriter_fourcc(*'XVID'), 5, (IMAGE_WIDTH, IMAGE_HEIGHT * 2), True)
+gtClone = gt.copy()
+none = gt.copy()
+grayPre = pre.copy()
 
-if not os.path.exists(PROJECT_PATH):
-    os.makedirs(PROJECT_PATH)
+cntTable += CalcResult(pre, gt)
+cntTableWeak += CalcResult(pre, wgt)
 
-for i in range(len(imgList)):
-    img = cv2.imread(DATA_PATH + "test/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    gt  = cv2.imread(DATA_PATH + "test_gt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    wgt = cv2.imread(DATA_PATH + "eval_wgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    wgt = wgtProcess(wgt)
-    bgt = cv2.imread(DATA_PATH + "test_bgt/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    videoImg = cv2.imread(DATA_PATH + "video/" + imgList[i].split('.')[0].split('_')[1] + ".png", cv2.IMREAD_COLOR)
-    pre = cv2.imread(PATH + preList[i], cv2.IMREAD_COLOR)
+LabelColor(img, gt, False)
+LabelColor(img, pre, False)
+LabelColor(img, bgt, False)
+LabelColor(img, wgt, True)
 
-    new_gt = gt.copy()
-    gt = preProcess(img, gt)
-    wgt = preProcess(img, wgt)
-    pre = preProcess(img, pre)
+colorizedImg = cv2.applyColorMap(costMap, cv2.COLORMAP_HOT)
+colorizedImg = preProcess(img, colorizedImg)
+videoImg = cv2.resize(videoImg, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
+# mergeImg0 = np.concatenate((img, wgt, pre), axis=1)
+# mergeImg1 = np.concatenate((videoImg, bgt, gt), axis=1)
+# mergeImg = np.concatenate((mergeImg0, mergeImg1), axis=0)
+mergeImg = np.concatenate((img, colorizedImg, pre, gt, wgt), axis=1)
+videoWriter.write(mergeImg)
+print('Frame: %d / %d' % (i+1, len(imgList)))
 
-    costMap = img.copy()
-    costMap, pre = readCost(costMap, pre)
-
-    gtClone = gt.copy()
-    none = gt.copy()
-    grayPre = pre.copy()
-    
-    cntTable += CalcResult(pre, gt)
-    cntTableWeak += CalcResult(pre, wgt)
-
-    LabelColor(img, gt, False)
-    LabelColor(img, pre, False)
-    LabelColor(img, bgt, False)
-    LabelColor(img, wgt, True)
-
-    colorizedImg = cv2.applyColorMap(costMap, cv2.COLORMAP_HOT)
-    colorizedImg = preProcess(img, colorizedImg)
-    videoImg = cv2.resize(videoImg, (IMAGE_WIDTH, IMAGE_HEIGHT), interpolation=cv2.INTER_NEAREST)
-    # mergeImg0 = np.concatenate((img, wgt, pre), axis=1)
-    # mergeImg1 = np.concatenate((videoImg, bgt, gt), axis=1)
-    # mergeImg = np.concatenate((mergeImg0, mergeImg1), axis=0)
-    mergeImg = np.concatenate((img, colorizedImg, pre, gt, wgt), axis=1)
-    videoWriter.write(mergeImg)
-    print('Frame: %d / %d' % (i+1, len(imgList)))
-
-    cv2.imwrite(PROJECT_PATH + "pre_" + imgList[i].split('.')[0].split('_')[1] + ".png", grayPre)
-    cv2.imwrite(PROJECT_PATH + "prob_" + imgList[i].split('.')[0].split('_')[1] + ".png", costMap)
+cv2.imwrite(PROJECT_PATH + "pre_" + imgList[i].split('.')[0].split('_')[1] + ".png", grayPre)
+cv2.imwrite(PROJECT_PATH + "prob_" + imgList[i].split('.')[0].split('_')[1] + ".png", costMap)
 
 OutputResult(cntTable, cntTableWeak)
 
