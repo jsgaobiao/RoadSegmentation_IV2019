@@ -1,0 +1,161 @@
+\begin{thebibliography}{10}
+
+\bibitem{BarHillel2014}
+Aharon {Bar Hillel}, Ronen Lerner, Dan Levi, and Guy Raz.
+\newblock {Recent progress in road and lane detection: A survey}.
+\newblock {\em Machine Vision and Applications}, 25(3):727--745, 2014.
+
+\bibitem{He2004}
+Yinghua He, Hong Wang, and Bo~Zhang.
+\newblock {Color-Based Road Detection in Urban Traffic Scenes}.
+\newblock 5(4):309--318, 2004.
+
+\bibitem{Alvarez2011}
+Jos{\'{e}}~M. {\'{A}}lvarez and Antonio~M. Ĺopez.
+\newblock {Road detection based on illuminant invariance}.
+\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+  12(1):184--193, 2011.
+
+\bibitem{Mei2018}
+Jilin Mei, Yufeng Yu, Huijing Zhao, and Hongbin Zha.
+\newblock {Scene-Adaptive Off-Road Detection Using a Monocular Camera}.
+\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+  19(1):242--253, 2018.
+
+\bibitem{Xiao2015}
+Liang Xiao, Bin Dai, Daxue Liu, Tingbo Hu, and Tao Wu.
+\newblock {CRF based road detection with multi-sensor fusion}.
+\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings},
+  2015-August(Iv):192--198, 2015.
+
+\bibitem{Zhang2010}
+Wende Zhang.
+\newblock {LIDAR-based road and road-edge detection}.
+\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings}, pages
+  845--848, 2010.
+
+\bibitem{Yuan2015}
+Yuan Yuan, Zhiyu Jiang, and Qi~Wang.
+\newblock {Video-based road detection via online structural learning}.
+\newblock {\em Neurocomputing}, 168:336--347, 2015.
+
+\bibitem{Aly2014}
+Mohamed Aly.
+\newblock {Real time Detection of Lane Markers in Urban Streets}.
+\newblock pages 7--12, 2014.
+
+\bibitem{ZuWhanKim2008}
+{ZuWhan Kim}.
+\newblock {Robust Lane Detection and Tracking in Challenging Scenarios}.
+\newblock {\em Ieee Transactions on Intelligent Transportation Systems},
+  9(1):16--26, 2008.
+
+\bibitem{Alvarez2014}
+Jose~M. {\'{A}}lvarez, Antonio~M. L{\'{o}}pez, Theo Gevers, and Felipe
+  Lumbreras.
+\newblock {Combining priors, appearance, and context for road detection}.
+\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+  15(3):1168--1178, 2014.
+
+\bibitem{Audibert2010}
+Jean-yves Audibert, Jean Ponce, and Ponts Paristech.
+\newblock {General Road Detection From a Single Image}.
+\newblock {\em IEEE Transactions on Image Processing}, 19(8):2211--2220, 2010.
+
+\bibitem{Zhou2010}
+Shengyan Zhou and Karl Iagnemma.
+\newblock {Self-supervised learning method for unstructured road detection
+  using fuzzy support vector machines}.
+\newblock {\em IEEE/RSJ 2010 International Conference on Intelligent Robots and
+  Systems, IROS 2010 - Conference Proceedings}, pages 1183--1189, 2010.
+
+\bibitem{Wijesoma2004}
+W.~S. Wijesoma, K.~R.S. Kodagoda, and Arjuna~P. Balasuriya.
+\newblock {Road-boundary detection and tracking using ladar sensing}.
+\newblock {\em IEEE Transactions on Robotics and Automation}, 20(3):456--464,
+  2004.
+
+\bibitem{Zhang2018}
+Yihuan Zhang, Jun Wang, Xiaonian Wang, and John~M. Dolan.
+\newblock {Road-Segmentation-Based Curb Detection Method for Self-Driving via a
+  3D-LiDAR Sensor}.
+\newblock {\em IEEE Transactions on Intelligent Transportation Systems}, pages
+  1--11, 2018.
+
+\bibitem{Asvadi2016}
+Alireza Asvadi, Cristiano Premebida, Paulo Peixoto, and Urbano Nunes.
+\newblock {3D Lidar-based static and moving obstacle detection in driving
+  environments: An approach based on voxels and multi-region ground planes}.
+\newblock {\em Robotics and Autonomous Systems}, 83:299--311, 2016.
+
+\bibitem{Hu2014}
+Xiao Hu, F.~Sergio~A. Rodriguez, and Alexander Gepperth.
+\newblock {A multi-modal system for road detection and segmentation}.
+\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings},
+  (Iv):1365--1370, 2014.
+
+\bibitem{Stanford2006}
+H.~Dahlkamp, A.~Kaehler, D.~Stavens, S.~Thrun, and G.~Bradski.
+\newblock {Self-supervised Monocular Road Detection in Desert Terrain}.
+\newblock {\em Robotics: Science and Systems II}, 2006.
+
+\bibitem{Suger2015}
+Benjamin Suger, Bastian Steder, and Wolfram Burgard.
+\newblock {Traversability analysis for mobile robots in outdoor environments: A
+  semi-supervised learning approach based on 3D-lidar data}.
+\newblock {\em Proceedings - IEEE International Conference on Robotics and
+  Automation}, 2015-June(June):3941--3946, 2015.
+
+\bibitem{Nefian2006}
+Ara~V. Nefian and Gary~R. Bradski.
+\newblock {Detection of drivable corridors for off-road autonomous navigation}.
+\newblock {\em Proceedings - International Conference on Image Processing,
+  ICIP}, (Figure 1):3025--3028, 2006.
+
+\bibitem{barnes2017find}
+Dan Barnes, Will Maddern, and Ingmar Posner.
+\newblock Find your own way: Weakly-supervised segmentation of path proposals
+  for urban autonomy.
+\newblock In {\em Robotics and Automation (ICRA), 2017 IEEE International
+  Conference on}, pages 203--210. IEEE, 2017.
+
+\bibitem{Han2018}
+Xiaofeng Han, Jianfeng Lu, Chunxia Zhao, and Hongdong Li.
+\newblock {Fully Convolutional Neural Networks for Road Detection with Multiple
+  Cues Integration}.
+\newblock {\em 2018 IEEE International Conference on Robotics and Automation
+  (ICRA)}, pages 4608--4613, 2018.
+
+\bibitem{Oliveira2016}
+Gabriel~L. Oliveira, Wolfram Burgard, and Thomas Brox.
+\newblock {Efficient deep models for monocular road segmentation}.
+\newblock {\em IEEE International Conference on Intelligent Robots and
+  Systems}, 2016-November:4885--4891, 2016.
+
+\bibitem{chen2015deepdriving}
+Chenyi Chen, Ari Seff, Alain Kornhauser, and Jianxiong Xiao.
+\newblock Deepdriving: Learning affordance for direct perception in autonomous
+  driving.
+\newblock In {\em Proceedings of the IEEE International Conference on Computer
+  Vision}, pages 2722--2730, 2015.
+
+\bibitem{Bellone2018}
+Mauro Bellone, Giulio Reina, Luca Caltagirone, and Mattias Wahde.
+\newblock {Learning Traversability from Point Clouds in Challenging Scenarios}.
+\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+  19(1):296--305, 2018.
+
+\bibitem{geiger2013vision}
+Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun.
+\newblock Vision meets robotics: The kitti dataset.
+\newblock {\em The International Journal of Robotics Research},
+  32(11):1231--1237, 2013.
+
+\bibitem{cordts2016cityscapes}
+Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler,
+  Rodrigo Benenson, Uwe Franke, Stefan Roth, and Bernt Schiele.
+\newblock The cityscapes dataset for semantic urban scene understanding.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 3213--3223, 2016.
+
+\end{thebibliography}

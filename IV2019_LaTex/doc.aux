@@ -1,40 +1,132 @@
 \relax 
-\@writefile{toc}{\contentsline {section}{\numberline {I}INTRODUCTION}{1}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {II}RELATED WORKS}{1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The ambiguities in off-road drivable area extraction. (a) Input LiDAR data in bird's-eye view. (b) Image reference of input data. (c) Human annotation. (d) Projected point clouds in camera coordinate.}}{1}\protected@file@percent }
-\newlabel{fig:example}{{1}{1}}
-\@writefile{toc}{\contentsline {section}{\numberline {III}METHODOLOGY}{1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {III-A}Problem Definition}{1}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {III-B}Network Architecture}{1}\protected@file@percent }
-\bibcite{c1}{1}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Network}}{2}\protected@file@percent }
-\newlabel{fig:network}{{2}{2}}
-\newlabel{equ:loss0}{{3}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {III-C}Semi-supervised Learning}{2}\protected@file@percent }
-\newlabel{equ:loss1}{{6}{2}}
-\newlabel{equ:loss2}{{7}{2}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}IMPLEMENTATION DETAILS}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Training Setup}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}Ground Truth Labeling}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-C}Evaluation}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {V}EXPERIMENTAL RESULTS}{2}\protected@file@percent }
-\newlabel{sec:experiment}{{V}{2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {V-A}Data set}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {V-B}Proposed Method Results}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {V-C}Limitations}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {VI}CONCLUSION}{2}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{References}{2}\protected@file@percent }
-\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Evaluation Measures}}{3}\protected@file@percent }
-\newlabel{tab:evaluation}{{I}{3}}
-\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces quantitative evaluation of different methods}}{3}\protected@file@percent }
-\newlabel{tab:all_result}{{II}{3}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Overview of the proposed off-road drivable area extraction framework}}{4}\protected@file@percent }
-\newlabel{fig:framework}{{3}{4}}
-\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces quantitative comparison of $F_1$ measure}}{4}\protected@file@percent }
-\newlabel{tab:semic}{{III}{4}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Qualitative results at straight road scene.}}{5}\protected@file@percent }
-\newlabel{fig:straight_road}{{4}{5}}
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Qualitative results at cross road scene.}}{6}\protected@file@percent }
-\newlabel{fig:cross_road}{{5}{6}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Quantitative comparison on test set.}}{7}\protected@file@percent }
-\newlabel{fig:semi_curve}{{6}{7}}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand*\HyPL@Entry[1]{}
+\bibstyle{unsrt}
+\citation{BarHillel2014}
+\citation{He2004}
+\citation{Alvarez2011}
+\citation{Mei2018}
+\citation{Xiao2015}
+\citation{Zhang2010}
+\citation{Yuan2015}
+\citation{Aly2014}
+\citation{ZuWhanKim2008}
+\citation{Alvarez2014}
+\citation{Audibert2010}
+\citation{Mei2018}
+\citation{Zhou2010}
+\citation{Zhang2010}
+\citation{Wijesoma2004}
+\citation{Zhang2018}
+\citation{Asvadi2016}
+\citation{Hu2014}
+\citation{Stanford2006}
+\HyPL@Entry{0<</S/D>>}
+\@writefile{toc}{\contentsline {section}{\numberline {I}INTRODUCTION}{1}{section.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The ambiguities in off-road drivable area extraction. (a) Input LiDAR data in bird's-eye view (the ego-car is in the center of the image with upward heading). (b) Image reference of input data. (c) Human annotation. (d) Projected point clouds in camera coordinate.}}{1}{figure.1}\protected@file@percent }
+\newlabel{fig:example}{{1}{1}{The ambiguities in off-road drivable area extraction. (a) Input LiDAR data in bird's-eye view (the ego-car is in the center of the image with upward heading). (b) Image reference of input data. (c) Human annotation. (d) Projected point clouds in camera coordinate}{figure.1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {II}RELATED WORKS}{1}{section.2}\protected@file@percent }
+\newlabel{sec:relatedworks}{{II}{1}{RELATED WORKS}{section.2}{}}
+\citation{Suger2015}
+\citation{Nefian2006}
+\citation{Audibert2010}
+\citation{Stanford2006}
+\citation{Nefian2006}
+\citation{barnes2017find}
+\citation{Han2018}
+\citation{Oliveira2016}
+\citation{chen2015deepdriving}
+\citation{Bellone2018}
+\citation{geiger2013vision}
+\citation{cordts2016cityscapes}
+\citation{chen2015deepdriving}
+\citation{barnes2017find}
+\citation{Suger2015}
+\@writefile{toc}{\contentsline {section}{\numberline {III}METHODOLOGY}{2}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{III}{2}{METHODOLOGY}{section.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {III-A}Problem Definition}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {III-B}Network Architecture}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The proposed network}}{2}{figure.2}\protected@file@percent }
+\newlabel{fig:network}{{2}{2}{The proposed network}{figure.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Overview of the proposed off-road drivable area extraction framework}}{3}{figure.3}\protected@file@percent }
+\newlabel{fig:framework}{{3}{3}{Overview of the proposed off-road drivable area extraction framework}{figure.3}{}}
+\newlabel{equ:loss0}{{3}{3}{Network Architecture}{equation.3.3}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {III-C}Weakly- and Semi-supervised Learning}{3}{subsection.3.3}\protected@file@percent }
+\newlabel{equ:loss1}{{6}{3}{Weakly- and Semi-supervised Learning}{equation.3.6}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Evaluation Measures}}{4}{table.1}\protected@file@percent }
+\newlabel{tab:evaluation}{{I}{4}{Evaluation Measures}{table.1}{}}
+\newlabel{equ:loss2}{{8}{4}{Weakly- and Semi-supervised Learning}{equation.3.8}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}IMPLEMENTATION DETAILS}{4}{section.4}\protected@file@percent }
+\newlabel{sec:implementationdetails}{{IV}{4}{IMPLEMENTATION DETAILS}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Automatic Labeling}{4}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:autolabel}{{IV-A}{4}{Automatic Labeling}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}Training Setup}{4}{subsection.4.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-C}Evaluation Measures}{4}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:eval}{{IV-C}{4}{Evaluation Measures}{subsection.4.3}{}}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Region Grow}}{4}{algorithm.1}\protected@file@percent }
+\newlabel{alg:rg}{{1}{4}{Automatic Labeling}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-C.1}Precision}{4}{subsubsection.4.3.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-C.2}Recall}{4}{subsubsection.4.3.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-C.3}Accuracy}{4}{subsubsection.4.3.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-C.4}$F_1$ Measure}{5}{subsubsection.4.3.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {V}EXPERIMENTAL RESULTS}{5}{section.5}\protected@file@percent }
+\newlabel{sec:experiment}{{V}{5}{EXPERIMENTAL RESULTS}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {V-A}Data Set}{5}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {V-B}Proposed Method Results}{5}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {V-B.1}Fully-supervised Results}{5}{subsubsection.5.2.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {V-B.2}Weakly-supervised Results}{5}{subsubsection.5.2.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces quantitative evaluation of different methods}}{5}{table.2}\protected@file@percent }
+\newlabel{tab:all_result}{{II}{5}{quantitative evaluation of different methods}{table.2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Qualitative results at cross road scene.}}{6}{figure.4}\protected@file@percent }
+\newlabel{fig:cross_road}{{4}{6}{Qualitative results at cross road scene}{figure.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Qualitative results at straight road scene.}}{6}{figure.5}\protected@file@percent }
+\newlabel{fig:straight_road}{{5}{6}{Qualitative results at straight road scene}{figure.5}{}}
+\@writefile{toc}{\contentsline {subsubsection}{\numberline {V-B.3}Semi-supervised Results}{6}{subsubsection.5.2.3}\protected@file@percent }
+\bibdata{refs}
+\bibcite{BarHillel2014}{1}
+\bibcite{He2004}{2}
+\bibcite{Alvarez2011}{3}
+\bibcite{Mei2018}{4}
+\bibcite{Xiao2015}{5}
+\bibcite{Zhang2010}{6}
+\bibcite{Yuan2015}{7}
+\bibcite{Aly2014}{8}
+\bibcite{ZuWhanKim2008}{9}
+\bibcite{Alvarez2014}{10}
+\bibcite{Audibert2010}{11}
+\bibcite{Zhou2010}{12}
+\bibcite{Wijesoma2004}{13}
+\bibcite{Zhang2018}{14}
+\bibcite{Asvadi2016}{15}
+\bibcite{Hu2014}{16}
+\bibcite{Stanford2006}{17}
+\bibcite{Suger2015}{18}
+\bibcite{Nefian2006}{19}
+\bibcite{barnes2017find}{20}
+\bibcite{Han2018}{21}
+\bibcite{Oliveira2016}{22}
+\bibcite{chen2015deepdriving}{23}
+\bibcite{Bellone2018}{24}
+\bibcite{geiger2013vision}{25}
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces $F_1$ measure of different methods}}{7}{table.3}\protected@file@percent }
+\newlabel{tab:semic}{{III}{7}{$F_1$ measure of different methods}{table.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Detailed comparison of semi-supervised methods on the test set.}}{7}{figure.6}\protected@file@percent }
+\newlabel{fig:semi_curve}{{6}{7}{Detailed comparison of semi-supervised methods on the test set}{figure.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {VI}CONCLUSION}{7}{section.6}\protected@file@percent }
+\newlabel{sec:conlusion}{{VI}{7}{CONCLUSION}{section.6}{}}
+\@writefile{toc}{\contentsline {section}{References}{7}{section*.1}\protected@file@percent }
+\bibcite{cordts2016cityscapes}{26}

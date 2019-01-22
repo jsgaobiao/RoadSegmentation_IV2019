@@ -1,0 +1,16 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: doc.aux
+The style file: unsrt.bst
+Database file #1: refs.bib
+Repeated entry---line 100 of file refs.bib
+ : @article{Oliveira2016
+ :                      ,
+I'm skipping whatever remains of this entry
+Repeated entry---line 318 of file refs.bib
+ : @article{geiger2013vision
+ :                          ,
+I'm skipping whatever remains of this entry
+Warning--empty journal in He2004
+Warning--empty journal in Aly2014
+Warning--there's a number but no volume in Hu2014
+Warning--there's a number but no volume in Nefian2006
+(There were 2 error messages)
