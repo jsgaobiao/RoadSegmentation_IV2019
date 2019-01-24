@@ -59,7 +59,7 @@ Off-Road Drivable Area Extraction Using 3D LiDAR Data
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
 	
-We propose a method for off-road drivable area extraction using 3D LiDAR data, which aims to the autonomous driving application. A specific deep learning framework is designed to deal with the ambiguous area, which is one main challenge in the off-road environment. In order to reduce the considerable demand of human-annotated data for network training, we utilize the information from vast quantities of vehicle paths and auto-generated obstacle labels. By these auto-generated annotations, the proposed network can be trained using weakly-supervised or semi-supervised methods, which can achieve better performance with less human annotations. The experiments on our data set illustrate the reasonability of our framework and the validity of our weakly- and semi-supervised methods.
+We propose a method for off-road drivable area extraction using 3D LiDAR data, which aims to the autonomous driving application. A specific deep learning framework is designed to deal with the ambiguous area, which is one main challenge in the off-road environment. In order to reduce the considerable demand for human-annotated data for network training, we utilize the information from vast quantities of vehicle paths and auto-generated obstacle labels. By these auto-generated annotations, the proposed network can be trained using weakly-supervised or semi-supervised methods, which can achieve better performance with less human annotations. The experiments on our data set illustrate the reasonability of our framework and the validity of our weakly- and semi-supervised methods.
 
 \end{abstract}
 
@@ -94,7 +94,7 @@ This paper is organized as follows: firstly, the related works are briefly intro
 Camera is one of the most important sensors in the road/drivable area extraction tasks for autonomous vehicles. Some camera-based methods depend on the assumption of global road priors such as the road boundaries\cite{Yuan2015}, % ?? ????
 traffic lanes\cite{Aly2014}\cite{ZuWhanKim2008} or % ?? ???
 vanish points\cite{Alvarez2014}\cite{Audibert2010}% ?? ???
-. Some other researches do not rely on the these assumptions, but view the drivable area extraction as a segmentation of road and non-road regions\cite{Mei2018}\cite{Zhou2010}.% ?? ???? SVM
+. Some other researches do not rely on these assumptions, but view the drivable area extraction as  segmentation of road and non-road regions\cite{Mei2018}\cite{Zhou2010}.% ?? ???? SVM
 Despite achieving good performance, camera-based methods are easily affected by the changing of illumination. 
 The LiDAR-based methods can fill up this weakness and the high precision 3D information can be conveniently used to extract the road boundaries\cite{Zhang2010}\cite{Wijesoma2004}\cite{Zhang2018} or fit the road plane\cite{Asvadi2016}\cite{Hu2014}. For the different characters of the two sensors, LiDAR-camera fusion becomes a natural solution. For example, Dahlkamp\cite{Stanford2006} identify a nearby drivable area by LiDAR and use it to train an image-based classifier for far-range drivable area detection.
 
@@ -103,15 +103,15 @@ Despite some methods have already been implemented to the off-road environment\c
 
 Recently, many deep learning methods achieve impressive results on the related task\cite{barnes2017find}\cite{Han2018}\cite{Oliveira2016}\cite{chen2015deepdriving}\cite{Bellone2018}. Compared to the traditional methods, deep networks can learn high level semantic features from the data directly, which usually performs better than human-designed features.
 However, the deep learning methods usually rely on large quantities of human-annotated data set like KITTI\cite{geiger2013vision} and Cityscapes\cite{cordts2016cityscapes}. For off-road environment, there is few widely-used data set for the drivable area extraction due to the ambiguous problem definition. 
-In order to reduce the demand of human annotation, a few researches use a simulator to access endless data for training\cite{chen2015deepdriving}. And other researches focus on weakly-supervised\cite{barnes2017find} or semi-supervised methods\cite{Suger2015}, trying to utilize the auto-generated weakly labels, which can be easily accessed, as substitution.
+In order to reduce the demand for human annotation, a few researches use a simulator to access endless data for training\cite{chen2015deepdriving}. And other researches focus on weakly-supervised\cite{barnes2017find} or semi-supervised methods\cite{Suger2015}, trying to utilize the auto-generated weakly labels, which can be easily accessed, as substitutions.
 
-This work focuses on the drivable area extraction in off-road environment. We propose a LiDAR-based deep learning framework specific to the ambiguities in this task. To reduce the demand of human-annotated data set, we also propose weakly-supervised and semi-supervised methods to learning features from auto-generated labels.
+This work focuses on the drivable area extraction in off-road environment. We propose a LiDAR-based deep learning framework specific to the ambiguities in this task. To reduce the demand for human-annotated data set, we also propose weakly-supervised and semi-supervised methods to learning features from auto-generated labels.
 
 \section{METHODOLOGY}	\label{sec:method}
 
 \subsection{Problem Definition}
 
-Let's denote the origin point clouds from 3D LiDAR sensor as $PC={\{pt_i\}}_{0\le i<N}$, where $N$ is the number of points. We aggregate a few frames' point clouds to get a dense bird's-eye view height map $X=\{x_{j,k}\}_{0\le j<H,0\le k<W}$, which is used as our input data format. The input height map is in the size of $H\times W$ and each pixel $x_{j,k}$ means the physical height of pixel $(j,k)$. The car is in the center of $X$ with upward heading. The examples of input can be seen in Figure.\ref{fig:example}(a).
+\textbf{\underline{We aggregate a few frames' point clouds to get}} a dense bird's-eye view height map $X=\{x_{j,k}\}_{0\le j<H,0\le k<W}$, which is used as our input data format. The input height map is in the size of $H\times W$ and each pixel $x_{j,k}$ means the physical height of pixel $(j,k)$. The car is in the center of $X$ with upward heading. The examples of input can be seen in Figure.\ref{fig:example}(a).
 
 Different from the well-defined road borders in structured urban environment, the main peculiarity in off-road environment is the ambiguous area beside the road margin, which is called grey zone. In order to distinguish it with others, we let $Label Set=\{unknown,drivable\ zone,obstacle\ zone,grey\ zone\}$, and we use $G=\{g_{j,k}\}_{0\le j<H,0\le k<W}$ to denote human annotated ground truth, where $g_{j,k}\in LabelSet$.
 
@@ -145,7 +145,8 @@ Due to the ambiguity of the grey zone, we hold the view that classifying it as a
 	\caption{Overview of the proposed off-road drivable area extraction framework}
 	\label{fig:framework}
 \end{figure*}
-Therefore, we can assume that the samples of grey zone are distribute between the drivable samples and the obstacle samples in feature space. The key idea of our proposed method is learning two classification surfaces in feature space and use the margin between them to split the grey zone samples. One classification surface is used to separate the drivable zone samples from others. The other one is used to separate the obstacle zone samples. We can evaluate the traversability cost of a sample by its feature distance to the two surfaces.
+Therefore, we assume that the samples of grey zone are distributed between the drivable samples and the obstacle samples in feature space. 
+\textbf{The key idea of our proposed method is learning two classification surfaces to separate the grey zone samples. One classification surface is used to separate the drivable zone samples from others. The other one is used to separate the obstacle zone samples from others. As a result, the grey zone samples distribute between the two classification surfaces, and we can evaluate the traversability cost of a sample by its feature distance to the two surfaces.}                                                                                                                                                                                                                                    
 
 As shown in Figure.\ref{fig:network}, the proposed network has two branches in order to learn the two classification surfaces mentioned above. Both of them are designed according to the common VGG-based fully convolutional network. The difference is that the last layer does not output the discrete labels but the probabilistic predictions from the last softmax layer. We denote them as $S_1$ and $S_2$, which are in the range of $[0,1]$.
 
@@ -170,7 +171,7 @@ y_i^{br}=
 \right.
 \end{equation}
 
-where $\vec{br}$ is the one-hot vector of label $br\in\{dri, obs\}$. $\Psi(\vec{dri})=\vec{obs}$ and $\Psi(\vec{obs})=\vec{dri}$. For example, we replace all the pixels with ground truth $g_i=gre$ to the label $obs$ to get $y_i^{dri}$ when training the drivable branch.
+\textbf{where $\vec{br}$ is the one-hot vector of label $br\in\{dri, obs\}$. $\Psi(\vec{dri})=\vec{obs}$ and $\Psi(\vec{obs})=\vec{dri}$. Concretely, when training the drivable branch, we replace all the pixels satisfied $g_i=gre$ with label $obs$ as $y_i^{dri}$. When training the obstacle branch, we replace all the pixels satisfied $g_i=gre$ with label $dir$ as $y_i^{obs}$.}
 
 We use the following regulation to calculate the traversability cost map $C$ and the discrete label:
 
@@ -189,7 +190,7 @@ where the pixels satisfied the first condition will be labeled as $y_{j,k}=dri$,
 
 \subsection{Weakly- and Semi-supervised Learning}
 
-In order to reduce the demand of the high-cost human-annotated data, we propose a semi-supervised learning method shown in Figure.\ref{fig:framework}. For our weakly-supervised method, there will not be human-annotated labels using for training. And for our semi-supervised method, this framework can combine a large number of auto-generated labels (see Section.\ref{sec:autolabel} for more details) and only a small fraction of human-annotated labels to train the network. Except the numerous auto-generated labels, this framework is almost the same as the fully-supervised one. Our proposed network receives the LiDAR-based height maps as the inputs and outputs the traversability cost map for each pixel. For the convenience of evaluation, the cost map will be discreted to the 3-class result and combined with the image for visualization.
+In order to reduce the demand for the high-cost human-annotated data, we propose a semi-supervised learning method shown in Figure.\ref{fig:framework}. For our weakly-supervised method, there will not having human-annotated labels using for training. And for our semi-supervised method, this framework can combine a large number of auto-generated labels (see Section.\ref{sec:autolabel} for more details) and only a small fraction of human-annotated labels to train the network. Except the numerous auto-generated labels, this framework is almost the same as the fully-supervised one. Our proposed network receives the LiDAR-based height maps as the inputs and outputs the traversability cost map for each pixel. For the convenience of evaluation, the cost map will be discreted to the 3-class result and combined with the image for visualization.
 
 For human-annotated data $X_h$, we use the loss function Equation (\ref{equ:loss0}) for training. For data $X_w$ with only auto-generated weakly labels, we define the loss  $L_{semi}^{br}$ in branch $br$ as below:
 
@@ -198,7 +199,7 @@ For human-annotated data $X_h$, we use the loss function Equation (\ref{equ:loss
 L^{br}_{semi}(X_w;\Theta^{br})=-\lambda \sum_{i}{\widetilde{y_i^{br}} \log{P(\widetilde{y_i^{br}}|\Theta^{br})}}
 \end{equation}
 
-where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for weakly- and semi-supervised training, which has a similar definition as $y_i^{br}$ except for the pixels without auto-generated labels $\widetilde{g_i}$. $unk$ means the unknown zone.
+where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for weakly- and semi-supervised training, which has a similar definition as $y_i^{br}$ except for the pixels without auto-generated labels $\widetilde{g_i}$. $unk$ means the unknown zone. \textbf{$g_i\neq unk$ means the pixels without LiDAR observation, so they are labeled as unknown.}
 
 \begin{table*}
 	\caption{Evaluation Measures}
@@ -238,7 +239,7 @@ When training the network with human-annotated labels and auto-generated labels 
 L^{br}(X_h,X_w;\Theta^{br})=L^{br}(X_h;\Theta^{br})+L^{br}_{semi}(X_w;\Theta^{br})
 \end{equation}
 
-In each training batch, the human-annotated and auto-generated data will be randomly fed to the model, and the mean loss of them will be calculated for back propagation. If only use auto-generated label for training (weakly-supervised learning), Equation (\ref{equ:loss0}) will be the loss function.
+In each training batch, the human-annotated and auto-generated data will be randomly fed to the model, and the mean loss of them will be calculated for back propagation. If only use auto-generated label for training (weakly-supervised learning), \textbf{\underline{Equation (\ref{equ:loss1}) be the only loss function.}}
 
 \section{IMPLEMENTATION DETAILS} \label{sec:implementationdetails}
 
@@ -325,7 +326,7 @@ During the process of data collection, the vehicle is driven by a human driver a
 The whole data set contains 1961 frames data. It's approximately about 785 meters driving distance. We choose 1176 frames for model training, 294 frames for validation and 491 frames for test.
 
 \subsection{Proposed Method Results}
-In order to evaluate our proposed method performance, we firstly compare it with a fully-supervised method to prove the reasonability of our model design for the grey zone. Except the specific design for off-road scene, another advantage of our model is that it's also suitable for weakly- and semi-supervised learning. So we then compare our weakly- and semi-supervised results with other baselines.
+In order to evaluate our proposed method performance, we firstly compare it with a fully-supervised method to prove the reasonability of our model design for the grey zone. \textbf{Another advantage of our model is that it's also suitable for weakly- and semi-supervised learning.} So we then compare our weakly- and semi-supervised results with other baselines.
 
 Figure.\ref{fig:cross_road} and Figure.\ref{fig:straight_road} show the qualitative test results of different methods in two typical scenes: a cross road scene and a straight road scene. It's necessary to mention that the cost maps of other baseline methods are directly remapped from their output labels, which only have 3 discrete values.
 
@@ -383,10 +384,10 @@ It achieves better evaluations than other methods in all measures except the pre
 	\end{tabular}
 \end{table*}
 
-In order to explore how the ratio of human-annotated labels influence our model performance. We compare the semi-supervised methods using different ratio's human-annotated labels, base on the key indicator $F_1$ measure. The detailed performance on the test set can be seen in Figure.\ref{fig:semi_curve}. We split the test set into 10 batches and evaluate on them respectively. The quantitative results is shown in Table.\ref{tab:semic}. The percentage in the front of 'semi-sup' means the ratio of human-annotated labels used for training. The $F_1$ measure of the 50\% semi-supervised version is higher than the fully-supervised method, and the 25\% semi-supervised version achieves higher performance than the '3-class FCN' baseline with only a quarter of human-annotated labels. It shows that our proposed semi-supervised method can significantly reduce the demand of high-cost human annotations.
+In order to explore how the ratio of human-annotated labels influence our model performance. We compare the semi-supervised methods using different ratio's human-annotated labels, base on the key indicator $F_1$ measure. The detailed performance on the test set can be seen in Figure.\ref{fig:semi_curve}. We split the test set into 10 batches and evaluate on them respectively. The quantitative results is shown in Table.\ref{tab:semic}. The percentage in the front of 'semi-sup' means the ratio of human-annotated labels used for training. The $F_1$ measure of the 50\% semi-supervised version is higher than the fully-supervised method, and the 25\% semi-supervised version achieves higher performance than the '3-class FCN' baseline with only a quarter of human-annotated labels. It shows that our proposed semi-supervised method can significantly reduce the demand for high-cost human annotations.
 
 \section{CONCLUSION}   \label{sec:conlusion}
-In this paper, we propose a deep learning framework for off-road drivable area extraction. The proposed network structure is specifically designed for the ambiguous grey zone in the off-road environment. We also propose an automatic labeling method which generates quantities of weakly labels from the data collection vehicle's driving. It can significantly reduce the demand of human-annotated data for the weakly- and semi-supervised network training.
+In this paper, we propose a deep learning framework for off-road drivable area extraction. The proposed network structure is specifically designed for the ambiguous grey zone in the off-road environment. We also propose an automatic labeling method which generates quantities of weakly labels from the data collection vehicle's driving. It can significantly reduce the demand for human-annotated data for the weakly- and semi-supervised network training.
 Crucially, it's demonstrated that the proposed semi-supervised method can achieve better performance than the fully-supervised one with even less human-annotated labels. In this work, the camera images are only used for visualization, but they actually include many useful features for the drivable area extraction, such as the colors and texture. We plan to fuse the camera information into our framework and enhance the robustness of far-field drivable area extraction in the off-road environment.
 
 %\addtolength{\textheight}{-21cm}   % This command serves to balance the column lengths
@@ -396,6 +397,169 @@ Crucially, it's demonstrated that the proposed semi-supervised method can achiev
 % so it should come on the page before the last. Make
 % sure that you do not shorten the textheight too much.
 
-\bibliography{refs}
+%\bibliography{refs}
+
+\begin{thebibliography}{99}
+	
+	\bibitem{BarHillel2014}
+	Aharon {Bar Hillel}, Ronen Lerner, Dan Levi, and Guy Raz.
+	\newblock {Recent progress in road and lane detection: A survey}.
+	\newblock {\em Machine Vision and Applications}, 25(3):727--745, 2014.
+	
+	\bibitem{He2004}
+	Yinghua He, Hong Wang, and Bo~Zhang.
+	\newblock {Color-Based Road Detection in Urban Traffic Scenes}.
+	\newblock 5(4):309--318, 2004.
+	
+	\bibitem{Alvarez2011}
+	Jos{\'{e}}~M. {\'{A}}lvarez and Antonio~M. Ĺopez.
+	\newblock {Road detection based on illuminant invariance}.
+	\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+	12(1):184--193, 2011.
+	
+	\bibitem{Mei2018}
+	Jilin Mei, Yufeng Yu, Huijing Zhao, and Hongbin Zha.
+	\newblock {Scene-Adaptive Off-Road Detection Using a Monocular Camera}.
+	\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+	19(1):242--253, 2018.
+	
+	\bibitem{Xiao2015}
+	Liang Xiao, Bin Dai, Daxue Liu, Tingbo Hu, and Tao Wu.
+	\newblock {CRF based road detection with multi-sensor fusion}.
+	\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings},
+	2015-August(Iv):192--198, 2015.
+	
+	\bibitem{Zhang2010}
+	Wende Zhang.
+	\newblock {LIDAR-based road and road-edge detection}.
+	\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings}, pages
+	845--848, 2010.
+	
+	\bibitem{Yuan2015}
+	Yuan Yuan, Zhiyu Jiang, and Qi~Wang.
+	\newblock {Video-based road detection via online structural learning}.
+	\newblock {\em Neurocomputing}, 168:336--347, 2015.
+	
+	\bibitem{Aly2014}
+	Mohamed Aly.
+	\newblock {Real time Detection of Lane Markers in Urban Streets}.
+	\newblock pages 7--12, 2014.
+	
+	\bibitem{ZuWhanKim2008}
+	{ZuWhan Kim}.
+	\newblock {Robust Lane Detection and Tracking in Challenging Scenarios}.
+	\newblock {\em Ieee Transactions on Intelligent Transportation Systems},
+	9(1):16--26, 2008.
+	
+	\bibitem{Alvarez2014}
+	Jose~M. {\'{A}}lvarez, Antonio~M. L{\'{o}}pez, Theo Gevers, and Felipe
+	Lumbreras.
+	\newblock {Combining priors, appearance, and context for road detection}.
+	\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+	15(3):1168--1178, 2014.
+	
+	\bibitem{Audibert2010}
+	Jean-yves Audibert, Jean Ponce, and Ponts Paristech.
+	\newblock {General Road Detection From a Single Image}.
+	\newblock {\em IEEE Transactions on Image Processing}, 19(8):2211--2220, 2010.
+	
+	\bibitem{Zhou2010}
+	Shengyan Zhou and Karl Iagnemma.
+	\newblock {Self-supervised learning method for unstructured road detection
+		using fuzzy support vector machines}.
+	\newblock {\em IEEE/RSJ 2010 International Conference on Intelligent Robots and
+		Systems, IROS 2010 - Conference Proceedings}, pages 1183--1189, 2010.
+	
+	\bibitem{Wijesoma2004}
+	W.~S. Wijesoma, K.~R.S. Kodagoda, and Arjuna~P. Balasuriya.
+	\newblock {Road-boundary detection and tracking using ladar sensing}.
+	\newblock {\em IEEE Transactions on Robotics and Automation}, 20(3):456--464,
+	2004.
+	
+	\bibitem{Zhang2018}
+	Yihuan Zhang, Jun Wang, Xiaonian Wang, and John~M. Dolan.
+	\newblock {Road-Segmentation-Based Curb Detection Method for Self-Driving via a
+		3D-LiDAR Sensor}.
+	\newblock {\em IEEE Transactions on Intelligent Transportation Systems}, pages
+	1--11, 2018.
+	
+	\bibitem{Asvadi2016}
+	Alireza Asvadi, Cristiano Premebida, Paulo Peixoto, and Urbano Nunes.
+	\newblock {3D Lidar-based static and moving obstacle detection in driving
+		environments: An approach based on voxels and multi-region ground planes}.
+	\newblock {\em Robotics and Autonomous Systems}, 83:299--311, 2016.
+	
+	\bibitem{Hu2014}
+	Xiao Hu, F.~Sergio~A. Rodriguez, and Alexander Gepperth.
+	\newblock {A multi-modal system for road detection and segmentation}.
+	\newblock {\em IEEE Intelligent Vehicles Symposium, Proceedings},
+	(Iv):1365--1370, 2014.
+	
+	\bibitem{Stanford2006}
+	H.~Dahlkamp, A.~Kaehler, D.~Stavens, S.~Thrun, and G.~Bradski.
+	\newblock {Self-supervised Monocular Road Detection in Desert Terrain}.
+	\newblock {\em Robotics: Science and Systems II}, 2006.
+	
+	\bibitem{Suger2015}
+	Benjamin Suger, Bastian Steder, and Wolfram Burgard.
+	\newblock {Traversability analysis for mobile robots in outdoor environments: A
+		semi-supervised learning approach based on 3D-lidar data}.
+	\newblock {\em Proceedings - IEEE International Conference on Robotics and
+		Automation}, 2015-June(June):3941--3946, 2015.
+	
+	\bibitem{Nefian2006}
+	Ara~V. Nefian and Gary~R. Bradski.
+	\newblock {Detection of drivable corridors for off-road autonomous navigation}.
+	\newblock {\em Proceedings - International Conference on Image Processing,
+		ICIP}, (Figure 1):3025--3028, 2006.
+	
+	\bibitem{barnes2017find}
+	Dan Barnes, Will Maddern, and Ingmar Posner.
+	\newblock Find your own way: Weakly-supervised segmentation of path proposals
+	for urban autonomy.
+	\newblock In {\em Robotics and Automation (ICRA), 2017 IEEE International
+		Conference on}, pages 203--210. IEEE, 2017.
+	
+	\bibitem{Han2018}
+	Xiaofeng Han, Jianfeng Lu, Chunxia Zhao, and Hongdong Li.
+	\newblock {Fully Convolutional Neural Networks for Road Detection with Multiple
+		Cues Integration}.
+	\newblock {\em 2018 IEEE International Conference on Robotics and Automation
+		(ICRA)}, pages 4608--4613, 2018.
+	
+	\bibitem{Oliveira2016}
+	Gabriel~L. Oliveira, Wolfram Burgard, and Thomas Brox.
+	\newblock {Efficient deep models for monocular road segmentation}.
+	\newblock {\em IEEE International Conference on Intelligent Robots and
+		Systems}, 2016-November:4885--4891, 2016.
+	
+	\bibitem{chen2015deepdriving}
+	Chenyi Chen, Ari Seff, Alain Kornhauser, and Jianxiong Xiao.
+	\newblock Deepdriving: Learning affordance for direct perception in autonomous
+	driving.
+	\newblock In {\em Proceedings of the IEEE International Conference on Computer
+		Vision}, pages 2722--2730, 2015.
+	
+	\bibitem{Bellone2018}
+	Mauro Bellone, Giulio Reina, Luca Caltagirone, and Mattias Wahde.
+	\newblock {Learning Traversability from Point Clouds in Challenging Scenarios}.
+	\newblock {\em IEEE Transactions on Intelligent Transportation Systems},
+	19(1):296--305, 2018.
+	
+	\bibitem{geiger2013vision}
+	Andreas Geiger, Philip Lenz, Christoph Stiller, and Raquel Urtasun.
+	\newblock Vision meets robotics: The kitti dataset.
+	\newblock {\em The International Journal of Robotics Research},
+	32(11):1231--1237, 2013.
+	
+	\bibitem{cordts2016cityscapes}
+	Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler,
+	Rodrigo Benenson, Uwe Franke, Stefan Roth, and Bernt Schiele.
+	\newblock The cityscapes dataset for semantic urban scene understanding.
+	\newblock In {\em Proceedings of the IEEE conference on computer vision and
+		pattern recognition}, pages 3213--3223, 2016.
+	
+\end{thebibliography}
+
 
 \end{document}
