@@ -1,4 +1,4 @@
-\begin{thebibliography}{10}
+\begin{thebibliography}{99}
 
 \bibitem{BarHillel2014}
 Aharon {Bar Hillel}, Ronen Lerner, Dan Levi, and Guy Raz.
@@ -157,5 +157,11 @@ Marius Cordts, Mohamed Omran, Sebastian Ramos, Timo Rehfeld, Markus Enzweiler,
 \newblock The cityscapes dataset for semantic urban scene understanding.
 \newblock In {\em Proceedings of the IEEE conference on computer vision and
   pattern recognition}, pages 3213--3223, 2016.
+
+\bibitem{long2015fully}
+Jonathan Long, Evan Shelhamer, and Trevor Darrell.
+\newblock Fully convolutional networks for semantic segmentation.
+\newblock In {\em Proceedings of the IEEE conference on computer vision and
+  pattern recognition}, pages 3431--3440, 2015.
 
 \end{thebibliography}
