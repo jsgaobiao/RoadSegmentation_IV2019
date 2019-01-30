@@ -210,6 +210,7 @@ L^{br}_{semi}(X_w;\Theta^{br})=-\lambda \sum_{i}{\widetilde{y_i^{br}} \log{P(\wi
 where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for weakly and semi-supervised training, which has a similar definition as $y_i^{br}$ except for the pixels without auto-generated labels $\widetilde{g_i}$. $unk$ means the unknown zone. $g_i\neq unk$ represents the pixels without LiDAR observation, so they are labeled as unknown.
 
 \begin{table*}
+	\vspace{2mm}
 	\caption{Evaluation Measures}
 	\label{tab:evaluation}
 	\centering
@@ -228,7 +229,7 @@ where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for w
 	\begin{tabular}{llllll}
 		\textbf{dri}: Drivable zone                 & \textbf{obs}: Obstacle zone              & \textbf{G}: Ground truth                            & \textbf{Y}: Predicted label & \textbf{VP}: Vehicle path & $\Arrowvert \textbf{X}\Arrowvert$: Pixel number in X \\
 	\end{tabular}
-	\vspace{-2mm}
+	\vspace{-4mm}
 \end{table*}
 
 \vspace{-4mm}
@@ -377,6 +378,7 @@ The semi-supervised methods mean a proportion of human-annotated and auto-genera
 We list the semi-supervised result using half human-annotated labels for training as representative in Table.\ref{tab:all_result}. The $F_1$ measure of our semi-supervised method (81.73\%) achieves an impressive improvement compared to other baseline methods, and it was even higher than the fully supervised result.
 Our method achieves better evaluations than other methods in all measures except precision $Q_1$; the explanation of this is similar to that of the weakly supervised models. 
 \begin{table*}
+	\vspace{2mm}
 	\caption{$F_1$ measure of different methods}
 	\label{tab:semic}
 	\centering
@@ -388,7 +390,7 @@ Our method achieves better evaluations than other methods in all measures except
 		$F_1$ measure & 73.86 & 75.04 & 78.96 & \textbf{81.73} & 81.01 	\\
 		\hline
 	\end{tabular}
-	\vspace{-2mm}
+	\vspace{-3mm}
 \end{table*}
 
 To explore how the ratio of human-annotated labels influences our model performance, we compare the semi-supervised methods using different ratios of human-annotated labels based on the key indicator $F_1$ measure. The detailed performance on the test set can be seen in Figure.\ref{fig:semi_curve}. We split the test set into 10 batches and evaluated on them separately. The quantitative results are shown in Table.\ref{tab:semic}. The percentage in the front of 'semi-sup' represents the ratio of human-annotated labels used for training. The $F_1$ measure of the 50\% semi-supervised version is higher than the fully supervised method, and the 25\% semi-supervised version achieves higher performance than the '3-class FCN' baseline with only a quarter of human-annotated labels. It shows that our proposed semi-supervised method can significantly reduce the demand for high-cost human annotations.
