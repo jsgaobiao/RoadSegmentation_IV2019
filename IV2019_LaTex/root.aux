@@ -29,6 +29,8 @@
 \citation{Audibert2010}
 \citation{Mei2018}
 \citation{Zhou2010}
+\citation{rankin2009stereo}
+\citation{broggi2013terrain}
 \citation{Zhang2010}
 \citation{Wijesoma2004}
 \citation{Zhang2018}
@@ -39,8 +41,6 @@
 \@writefile{toc}{\contentsline {section}{\numberline {I}INTRODUCTION}{1}{section.1}\protected@file@percent }
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The ambiguities in off-road drivable area extraction. (a) Input LiDAR data in bird's-eye view (the ego-car is in the center of images with an upward heading). (b) Image reference of input data. (c) Human-annotated labels. (d) Human-annotated labels' projection on image}}{1}{figure.1}\protected@file@percent }
 \newlabel{fig:example}{{1}{1}{The ambiguities in off-road drivable area extraction. (a) Input LiDAR data in bird's-eye view (the ego-car is in the center of images with an upward heading). (b) Image reference of input data. (c) Human-annotated labels. (d) Human-annotated labels' projection on image}{figure.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {II}RELATED WORKS}{1}{section.2}\protected@file@percent }
-\newlabel{sec:relatedworks}{{II}{1}{RELATED WORKS}{section.2}{}}
 \citation{Suger2015}
 \citation{Nefian2006}
 \citation{Audibert2010}
@@ -56,27 +56,30 @@
 \citation{chen2015deepdriving}
 \citation{barnes2017find}
 \citation{Suger2015}
+\@writefile{toc}{\contentsline {section}{\numberline {II}RELATED WORKS}{2}{section.2}\protected@file@percent }
+\newlabel{sec:relatedworks}{{II}{2}{RELATED WORKS}{section.2}{}}
 \@writefile{toc}{\contentsline {section}{\numberline {III}METHODOLOGY}{2}{section.3}\protected@file@percent }
 \newlabel{sec:method}{{III}{2}{METHODOLOGY}{section.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {III-A}Problem Definition}{2}{subsection.3.1}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {III-B}Network Architecture}{2}{subsection.3.2}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The proposed network architecture}}{2}{figure.2}\protected@file@percent }
-\newlabel{fig:network}{{2}{2}{The proposed network architecture}{figure.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Overview of the proposed off-road drivable area extraction framework}}{3}{figure.3}\protected@file@percent }
-\newlabel{fig:framework}{{3}{3}{Overview of the proposed off-road drivable area extraction framework}{figure.3}{}}
-\newlabel{equ:loss0}{{3}{3}{Network Architecture}{equation.3.3}{}}
+\newlabel{equ:loss0}{{2}{3}{Network Architecture}{equation.3.2}{}}
+\newlabel{equ:Cost}{{4}{3}{Network Architecture}{equation.3.4}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {III-C}Weakly and Semi-supervised Learning}{3}{subsection.3.3}\protected@file@percent }
-\newlabel{equ:loss1}{{6}{3}{Weakly and Semi-supervised Learning}{equation.3.6}{}}
-\newlabel{equ:loss2}{{8}{3}{Weakly and Semi-supervised Learning}{equation.3.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces The proposed network architecture}}{3}{figure.2}\protected@file@percent }
+\newlabel{fig:network}{{2}{3}{The proposed network architecture}{figure.2}{}}
+\newlabel{equ:loss1}{{5}{3}{Weakly and Semi-supervised Learning}{equation.3.5}{}}
+\newlabel{equ:loss2}{{7}{3}{Weakly and Semi-supervised Learning}{equation.3.7}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}IMPLEMENTATION DETAILS}{3}{section.4}\protected@file@percent }
+\newlabel{sec:implementationdetails}{{IV}{3}{IMPLEMENTATION DETAILS}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Automatic Labelling}{3}{subsection.4.1}\protected@file@percent }
+\newlabel{sec:autolabel}{{IV-A}{3}{Automatic Labelling}{subsection.4.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}Training Setup}{3}{subsection.4.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Overview of the proposed off-road drivable area extraction framework}}{4}{figure.3}\protected@file@percent }
+\newlabel{fig:framework}{{3}{4}{Overview of the proposed off-road drivable area extraction framework}{figure.3}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Evaluation Measures}}{4}{table.1}\protected@file@percent }
 \newlabel{tab:evaluation}{{I}{4}{Evaluation Measures}{table.1}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {IV}IMPLEMENTATION DETAILS}{4}{section.4}\protected@file@percent }
-\newlabel{sec:implementationdetails}{{IV}{4}{IMPLEMENTATION DETAILS}{section.4}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-A}Automatic Labelling}{4}{subsection.4.1}\protected@file@percent }
-\newlabel{sec:autolabel}{{IV-A}{4}{Automatic Labelling}{subsection.4.1}{}}
 \@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Region Grow}}{4}{algorithm.1}\protected@file@percent }
 \newlabel{alg:rg}{{1}{4}{Automatic Labelling}{algorithm.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {IV-B}Training Setup}{4}{subsection.4.2}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {IV-C}Evaluation Measures}{4}{subsection.4.3}\protected@file@percent }
 \newlabel{sec:eval}{{IV-C}{4}{Evaluation Measures}{subsection.4.3}{}}
 \@writefile{toc}{\contentsline {subsubsection}{\numberline {IV-C.1}Precision}{4}{subsubsection.4.3.1}\protected@file@percent }
@@ -114,21 +117,23 @@
 \bibcite{Alvarez2014}{10}
 \bibcite{Audibert2010}{11}
 \bibcite{Zhou2010}{12}
-\bibcite{Wijesoma2004}{13}
-\bibcite{Zhang2018}{14}
-\bibcite{Asvadi2016}{15}
-\bibcite{Hu2014}{16}
-\bibcite{Stanford2006}{17}
-\bibcite{Suger2015}{18}
-\bibcite{Nefian2006}{19}
-\bibcite{barnes2017find}{20}
-\bibcite{Han2018}{21}
-\bibcite{Oliveira2016}{22}
-\bibcite{chen2015deepdriving}{23}
-\bibcite{Bellone2018}{24}
-\bibcite{geiger2013vision}{25}
-\bibcite{cordts2016cityscapes}{26}
-\bibcite{long2015fully}{27}
+\bibcite{rankin2009stereo}{13}
+\bibcite{broggi2013terrain}{14}
+\bibcite{Wijesoma2004}{15}
+\bibcite{Zhang2018}{16}
+\bibcite{Asvadi2016}{17}
+\bibcite{Hu2014}{18}
+\bibcite{Stanford2006}{19}
+\bibcite{Suger2015}{20}
+\bibcite{Nefian2006}{21}
+\bibcite{barnes2017find}{22}
+\bibcite{Han2018}{23}
+\bibcite{Oliveira2016}{24}
+\bibcite{chen2015deepdriving}{25}
+\bibcite{Bellone2018}{26}
+\bibcite{geiger2013vision}{27}
+\bibcite{cordts2016cityscapes}{28}
+\bibcite{long2015fully}{29}
 \@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces $F_1$ measure of different methods}}{7}{table.3}\protected@file@percent }
 \newlabel{tab:semic}{{III}{7}{$F_1$ measure of different methods}{table.3}{}}
 \@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Detailed comparison of semi-supervised methods on the test set.}}{7}{figure.6}\protected@file@percent }

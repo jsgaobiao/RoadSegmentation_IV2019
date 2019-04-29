@@ -2,7 +2,7 @@
 
 %\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4 paper
 
-%\IEEEoverridecommandlockouts                              % This command is only needed if 
+\IEEEoverridecommandlockouts                              % This command is only needed if 
                                                           % you want to use the \thanks command
 
 \overrideIEEEmargins                                      % Needed to meet printer requirements.
@@ -43,14 +43,14 @@ Off-Road Drivable Area Extraction Using 3D LiDAR Data
 		Wen Yao\authorrefmark{2},
 		Huijing Zhao\authorrefmark{1}}
 	\authorblockA{\authorrefmark{1}Peking University, Beijing, China}
-	\authorblockA{\authorrefmark{2}China North Vehicle Research Institute, Beijing, China}}
+	\authorblockA{\authorrefmark{2}China North Vehicle Research Institute, Beijing, China}
+	\thanks{This work is partially supported by the NSFC Grants 61573027. B. Gao, A. Xu, Y. Pan and H. Zhao are with the Peking University, with the Key Laboratory of Machine Perception (MOE), and also with the School of Electronics Engineering and Computer Science, Beijing 100871, China. X. Zhao and W. Yao are with China North Vehicle Research Institute, Beijing, China. Correspondence: H. Zhao, zhaohj@cis.pku.edu.cn.}}
 
 \begin{document}
 
 
 \bibliographystyle{unsrt}
 \maketitle
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
@@ -91,9 +91,9 @@ This paper is organized as follows. First, the related works are briefly introdu
 Cameras are one of the most important sensors in the road/drivable area extraction tasks for autonomous vehicles. Some camera-based methods depend on the assumption of global road priors such as road boundaries\cite{Yuan2015},
 traffic lanes\cite{Aly2014}\cite{ZuWhanKim2008} or
 vanish points\cite{Alvarez2014}\cite{Audibert2010}
-. Some other studies do not rely on these assumptions but view the drivable area extraction as a segmentation of road and non-road regions\cite{Mei2018}\cite{Zhou2010}.
+. Some other studies do not rely on these assumptions but view the drivable area extraction as a segmentation of road and non-road regions\cite{Mei2018}\cite{Zhou2010}. Furthermore, some stereo camera based approaches\cite{rankin2009stereo}\cite{broggi2013terrain} make use of depth information to help off-road drivable area extraction.
 Despite achieving good performance, camera-based methods are easily affected by changing illumination. 
-The LiDAR-based methods can address this weakness, and the high precision 3D information can be conveniently used to extract the road boundaries\cite{Zhang2010}\cite{Wijesoma2004}\cite{Zhang2018} or fit the road plane\cite{Asvadi2016}\cite{Hu2014}. For the different characteristics of the two sensors, LiDAR-camera fusion becomes a natural solution. For example, Dahlkamp\cite{Stanford2006} identified a nearby drivable area by LiDAR and used it to train an image-based classifier for far-range drivable area detection.
+The LiDAR-based methods can address this weakness, and the higher precision 3D information can be conveniently used to extract the road boundaries\cite{Zhang2010}\cite{Wijesoma2004}\cite{Zhang2018} or fit the road plane\cite{Asvadi2016}\cite{Hu2014}. For the different characteristics of the two sensors, LiDAR-camera fusion becomes a natural solution. For example, Dahlkamp\cite{Stanford2006} identified a nearby drivable area by LiDAR and used it to train an image-based classifier for far-range drivable area detection.
 
 The existing drivable area extraction methods are mostly designed for urban environment, but the problem in off-road environments is quite different. One fundamental problem is the ambiguous definition of the drivable area, as shown in Figure.\ref{fig:example}. Many studies have proposed similar concepts for off-road scenes from different perspectives, such as traversability analysis\cite{Suger2015} and drivable corridors\cite{Nefian2006}.
 Despite some methods having already been implemented in off-road environments\cite{Audibert2010}\cite{Stanford2006}\cite{Nefian2006}, they still have some limits. These methods usually focus on the mechanically drivable area but seldom distinguish whether these areas are likely to be chosen by a human driver, which makes great sense for autonomous vehicles.
@@ -120,15 +120,15 @@ The original output of our proposed framework is a cost map $C=\{c_{j,k}\}_{0\le
 f_\theta^*:x_{j,k}\rightarrow c_{j,k} \in [0,1]
 \end{equation}
 
-For conveniently comparing with the human-annotated ground truth $G$ and other baseline methods, we use $d_\alpha$ to remap cost map $C$ to label $Y=y_{j,k}\in LabelSet$.
+For conveniently comparing with the human-annotated ground truth $G$ and other baseline methods, we use Equation (\ref{equ:Cost}) to get label $Y=y_{j,k}\in LabelSet$.
 
 
-\vspace{-2mm}
-\begin{equation}
-d_\alpha:c_{j,k}\rightarrow y_{j,k} \in LabelSet
-\end{equation}
+%\vspace{-2mm}
+%\begin{equation}
+%d_\alpha:c_{j,k}\rightarrow y_{j,k} \in LabelSet
+%\end{equation}
 
-Therefore, the problem in this work can be formulated as learning a multi-class classifier $f_\theta=d_\alpha(f_\theta^*)$ that maps input $x_{j,k}$ to a label $y_{j,k}\in LabelSet$.
+Therefore, the problem in this work can be formulated as learning a multi-class classifier $f_\theta$ that maps input $x_{j,k}$ to a label $y_{j,k}\in LabelSet$.
 
 \subsection{Network Architecture}
 Due to the ambiguity of the grey zone, we hold the view that classifying it as an independent label from the others is not reasonable enough. In some cases, the grey zone is technically drivable but not human-desired, which is very close to or even overlaps with the drivable zone in the feature space. In other cases, the grey zone may have a higher traversability cost than the common drivable zone, which is closer to or even overlaps the obstacle zone in feature space. As a result, viewing the ambiguous grey zone as an independent label in the training process will cause confusion for the deep learning model, and the experimental results in Section.\ref{sec:experiment} give evidence of this viewpoint.
@@ -143,7 +143,7 @@ Due to the ambiguity of the grey zone, we hold the view that classifying it as a
 
 \begin{figure*}[ht]
 	\centering
-	\includegraphics[scale=0.4]{framework.pdf}
+	\includegraphics[scale=0.37]{framework.pdf}
 	\caption{Overview of the proposed off-road drivable area extraction framework}
 	\label{fig:framework}
 	\vspace{-4mm}
@@ -156,7 +156,7 @@ As shown in Figure.\ref{fig:network}, the proposed network has two branches for 
 
 Each branch is trained end-to-end guided by the following cross-entropy loss function:
 
-\vspace{-3mm}
+\vspace{-4mm}
 \begin{equation}
 \label{equ:loss0}
 \resizebox{.91\hsize}{!}{
@@ -168,6 +168,7 @@ where $br\in\{dri, obs\}$ is the name of the network's branch. $P(y_i^{br}|\Thet
 
 When training the network, a different label, $y_i^{br}$, is used in the two branches. 
 
+\vspace{-2mm}
 \begin{equation}
 y_i^{br}= 
 \left\{
@@ -177,17 +178,20 @@ y_i^{br}=
 \end{array}
 \right.
 \end{equation}
+\vspace{-3mm}
 
 where $\vec{br}$ is the one-hot vector of label $br\in\{dri, obs\}$. $\Psi(\vec{dri})=\vec{obs}$ and $\Psi(\vec{obs})=\vec{dri}$. Concretely, when training the drivable branch, we replace all the pixels satisfied $g_i=gre$ with label $obs$ to obtain $y_i^{dri}$. When training the obstacle branch, we replace all the pixels satisfied $g_i=gre$ with label $dir$ to obtain $y_i^{obs}$.
 
 We use the following regulation to calculate the traversability cost map $C$ and the discrete label:
 
+\vspace{-3mm}
 \begin{equation}
+\label{equ:Cost}
 C= 
 \left\{
 \begin{array}{ccc}
-S_1, &\  if \ S_1>\alpha_1 \\ 
-1-S_2, &\ if \ S_2>\alpha_2 \\
+S_1, &\  if \ S_1>\alpha_1\ and\ S_2<\alpha_2\\ 
+1-S_2, &\ if \ S_2>\alpha_2\ and\ S_1<\alpha_1\\
 \frac{1-S_2}{1-S_1 + 1-S_2}, &\ otherwise
 \end{array}
 \right.
@@ -201,12 +205,13 @@ To reduce the demand for the high-cost human-annotated data, we propose a semi-s
 
 For human-annotated data $X_h$, we use the loss function Equation (\ref{equ:loss0}) for training. For data $X_w$ with only auto-generated weak labels, we define the loss  $L_{semi}^{br}$ in branch $br$ as below:
 
-\vspace{-2mm}
+\vspace{-4mm}
 \begin{equation}
 \label{equ:loss1}
 L^{br}_{semi}(X_w;\Theta^{br})=-\lambda \sum_{i}{\widetilde{y_i^{br}} \log{P(\widetilde{y_i^{br}}|\Theta^{br})}}
 \end{equation}
 
+\vspace{-2mm}
 where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for weakly and semi-supervised training, which has a similar definition as $y_i^{br}$ except for the pixels without auto-generated labels $\widetilde{g_i}$. $unk$ means the unknown zone. $g_i\neq unk$ represents the pixels without LiDAR observation, so they are labeled as unknown.
 
 \begin{table*}
@@ -232,7 +237,7 @@ where $\lambda$ is a regularization weight. $\widetilde{y_i^{br}}$ is used for w
 	\vspace{-4mm}
 \end{table*}
 
-\vspace{-4mm}
+\vspace{-5mm}
 \begin{equation}
 \widetilde{y_i^{br}}= 
 \left\{
@@ -245,7 +250,7 @@ y_i^{br}, &\quad otherwise \\
 
 When training the network with human-annotated labels and auto-generated labels simultaneously, the Equation (\ref{equ:loss0}) and Equation (\ref{equ:loss1}) are combined.
 
-\vspace{-2mm}
+\vspace{-4mm}
 \begin{equation}
 \label{equ:loss2}
 L^{br}(X_h,X_w;\Theta^{br})=L^{br}(X_h;\Theta^{br})+L^{br}_{semi}(X_w;\Theta^{br})
@@ -266,13 +271,13 @@ In addition, we assume that the vehicle path chosen by the human driver must bel
 	\caption{Region Grow}
 	\label{alg:rg}
 	\begin{algorithmic}[1]
-		\Require Height map $X$, Height threshold $T_h$, Angle threshold $T_a$, Initial road height threshold $T_r$
+		\Require Height map $X$, Height threshold $T_h$, Angle threshold $T_a$, Initial road height interval $[T_r, T_r']$
 		\Ensure Drivable region set $S_d$, Obstacle region set $S_o$
 		\State Initialize: waiting list $Q=\emptyset,S_d=\emptyset,S_o=\emptyset$
-		\State Delta height function: $\Delta H$
-		\State Delta angle function: $\Delta A$
+		\State Height difference: $\Delta H$
+		\State Angle difference: $\Delta A$
 		\ForAll {$x_i$ \textbf{in} $X$}
-		\If {$x_i \in [-T_r,T_r]$}
+		\If {$x_i \in [T_r, T_r']$}
 		\State $Q \gets Q \cup x_i$, $S_d \gets S_d \cup x_i$
 		\EndIf
 		\EndFor
@@ -310,6 +315,7 @@ Finally, the $F_1$ measure is a widely used indicator that considers both the pr
 In this work, there are some methods that tend to extract the drivable zone with a narrow-width, which is similar to a vehicle path. This leads to very high performance for precision ($Q_1$) but lower recall ($Q_2$). In addition, there are some other methods that tend to extract a wider drivable zone, which leads to higher recall ($Q_2$) but lower precision ($Q_1$). In these cases, the $F_1$ measure is considered the most important indicator for evaluating the method’s performance.
 
 \begin{table*}[b]
+	\vspace{-2mm}
 	\caption{quantitative evaluation of different methods}
 	\label{tab:all_result}
 	\centering
@@ -349,13 +355,14 @@ We use the evaluation measures described in Section.\ref{sec:eval} to compare th
 	\includegraphics[scale=0.15]{crossRoad.pdf}
 	\caption{Qualitative results at crossroad scene.}
 	\label{fig:cross_road}
-	\vspace{-2mm}
+	\vspace{-3mm}
 \end{figure*}
 \begin{figure*}[ht]
 	\centering
 	\includegraphics[scale=0.15]{straightRoad.pdf}
 	\caption{Qualitative results at straight road scene.}
 	\label{fig:straight_road}
+	\vspace{-3mm}
 \end{figure*}
 
 \subsubsection{Fully Supervised Results}
@@ -397,12 +404,13 @@ To explore how the ratio of human-annotated labels influences our model performa
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[scale=0.6]{semiSupvisedResult.pdf}
+	\includegraphics[scale=0.5]{semiSupvisedResult.pdf}
 	\caption{Detailed comparison of semi-supervised methods on the test set.}
 	\label{fig:semi_curve}
-	\vspace{-2mm}
+	\vspace{-4mm}
 \end{figure}
 
+\vspace{-4mm}
 \section{CONCLUSION}   \label{sec:conlusion}
 In this paper, we propose a deep learning framework for off-road drivable area extraction. The proposed network structure is specifically designed for the ambiguous grey zone in the off-road environment. We also propose an automatic labelling method that generates quantities of weak labels from the vehicle's driving data collection. Our method can significantly reduce the demand for human-annotated data for the weakly and semi-supervised network training.
 Importantly, it is demonstrated that the proposed semi-supervised method can achieve better performance than the fully supervised method with even fewer human-annotated labels. In this work, the camera images are only used for visualization, but they actually include many useful features for the drivable area extraction, such as the colors and textures. We plan to fuse the camera information into our framework and enhance the robustness of far-field drivable area extraction in the off-road environment.
@@ -487,6 +495,20 @@ Importantly, it is demonstrated that the proposed semi-supervised method can ach
 	\newblock {\em IEEE/RSJ 2010 International Conference on Intelligent Robots and
 		Systems, IROS 2010 - Conference Proceedings}, pages 1183--1189, 2010.
 	
+	\bibitem{rankin2009stereo}
+	Arturo~L Rankin, Andres Huertas, and Larry~H Matthies.
+	\newblock Stereo-vision-based terrain mapping for off-road autonomous
+	navigation.
+	\newblock In {\em Unmanned Systems Technology XI}, volume 7332, page 733210.
+	International Society for Optics and Photonics, 2009.
+	
+	\bibitem{broggi2013terrain}
+	Alberto Broggi, Elena Cardarelli, Stefano Cattani, and Mario Sabbatelli.
+	\newblock Terrain mapping for off-road autonomous ground vehicles using
+	rational b-spline surfaces and stereo vision.
+	\newblock In {\em 2013 IEEE Intelligent Vehicles Symposium (IV)}, pages
+	648--653. IEEE, 2013.
+	c
 	\bibitem{Wijesoma2004}
 	W.~S. Wijesoma, K.~R.S. Kodagoda, and Arjuna~P. Balasuriya.
 	\newblock {Road-boundary detection and tracking using ladar sensing}.

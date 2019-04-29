@@ -1,4 +1,4 @@
-\begin{thebibliography}{99}
+\begin{thebibliography}{10}
 
 \bibitem{BarHillel2014}
 Aharon {Bar Hillel}, Ronen Lerner, Dan Levi, and Guy Raz.
@@ -68,6 +68,20 @@ Shengyan Zhou and Karl Iagnemma.
   using fuzzy support vector machines}.
 \newblock {\em IEEE/RSJ 2010 International Conference on Intelligent Robots and
   Systems, IROS 2010 - Conference Proceedings}, pages 1183--1189, 2010.
+
+\bibitem{rankin2009stereo}
+Arturo~L Rankin, Andres Huertas, and Larry~H Matthies.
+\newblock Stereo-vision-based terrain mapping for off-road autonomous
+  navigation.
+\newblock In {\em Unmanned Systems Technology XI}, volume 7332, page 733210.
+  International Society for Optics and Photonics, 2009.
+
+\bibitem{broggi2013terrain}
+Alberto Broggi, Elena Cardarelli, Stefano Cattani, and Mario Sabbatelli.
+\newblock Terrain mapping for off-road autonomous ground vehicles using
+  rational b-spline surfaces and stereo vision.
+\newblock In {\em 2013 IEEE Intelligent Vehicles Symposium (IV)}, pages
+  648--653. IEEE, 2013.
 
 \bibitem{Wijesoma2004}
 W.~S. Wijesoma, K.~R.S. Kodagoda, and Arjuna~P. Balasuriya.
